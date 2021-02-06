@@ -1,22 +1,21 @@
-use std::fmt;
 
-fn basic_board() -> MancalaBoard {
+pub fn basic_board() -> MancalaBoard {
     return MancalaBoard {
         values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
     };
 }
 
 #[derive(PartialEq)]
-enum Side {
+pub enum Side {
     Left,
     Right,
 }
 
-struct MancalaBoard {
+pub struct MancalaBoard {
     values: [u32; 14],
 }
 
-impl MancalaBoard {
+pub impl MancalaBoard {
     fn print(&self) {
         println!(
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
