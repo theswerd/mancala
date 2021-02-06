@@ -1,2 +1,9 @@
-# mancala
- Mancala AI + Possibly App someday
+# Mancala
+
+| Feature              | Progress |
+|----------------------|----------|
+| Mancala Board        | 🚧       |
+| Mancala CLI playable | ❌       |
+| Mancala AI Model     | ❌       |
+| Mancala AI playable  | ❌       |
+| Mancala App          | ❌       |
