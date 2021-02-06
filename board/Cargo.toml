@@ -1,10 +1,11 @@
 [package]
 name = "mancala_board"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Benjamin Swerdlow <Swerdlowbenjamin@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/theswerd/mancala"
 homepage = "https://github.com/theswerd/mancala"
+readme = "board/readme"
 license = "MIT"
 keywords = ["mancala", "game", "boardgame"]
 description = "A package with a minimal mancala board to play with."
