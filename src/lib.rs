@@ -14,7 +14,7 @@ pub struct MancalaBoard {
     values: [u32; 14],
 }
 
-pub impl MancalaBoard {
+impl MancalaBoard {
     pub fn print(&self) {
         println!(
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
