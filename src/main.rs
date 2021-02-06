@@ -1,47 +1,91 @@
-fn main() {
-    let mut mancala_board: [i32; 12] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    
-    print_board(mancala_board);
-    mancala_board[4] = 12;
-    print_board(mancala_board);
+use std::fmt;
+
+fn basic_board() -> MancalaBoard {
+    return MancalaBoard {
+        values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
+    };
 }
 
-fn print_board(amounts: [i32; 12]) {
-    println!(
-        " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
-        amounts[0]
-    );
-    for index in 1..5 {
-        println!(" ____  |  ____");
-        println!("( {:2} ) | ( {:2} )", amounts[index], amounts[index + 6]);
-        println!(" ‾‾‾‾  |  ‾‾‾‾");
+#[derive(PartialEq)]
+enum Side {
+    Left,
+    Right,
+}
+
+struct MancalaBoard {
+    values: [u32; 14],
+}
+
+impl MancalaBoard {
+    fn print(&self) {
+        println!(
+            " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
+            self.values[0]
+        );
+        for index in 1..7 {
+            println!(" ____  |  ____");
+            println!(
+                "( {:2} ) | ( {:2} )",
+                self.values[index],
+                self.values[14 - index]
+            );
+            println!(" ‾‾‾‾  |  ‾‾‾‾");
+        }
+        println!(
+            " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
+            self.values[7]
+        );
     }
-    println!(
-        " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
-        amounts[6]
-    );
+
+    fn move_piece(&mut self, index: usize, side: Side) -> bool {
+        let mut amount = self.values[index];
+
+        self.values[index] = 0;
+        let mut add_index = index + 1;
+        while add_index < (index + amount as usize + 1) {
+            let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
+            if formatted_index == 0 && side == Side::Left
+                || formatted_index == 7 && side == Side::Right
+            {
+                amount += 1;
+            } else {
+                self.values[formatted_index] += 1;
+            }
+            add_index += 1;
+        }
+        let end_index = get_end_index(index, amount);
+        println!("END INDEX: {}", index);
+
+        self.print();
+
+        if end_index == 0 && end_index == 7 {
+            return true;
+        } else if self.values[end_index] > 1 {
+            return self.move_piece(end_index, side);
+        } else {
+            return false;
+        }
+    }
+
+    fn game_over(&self) -> bool {
+        return self.values[1..7].iter().all(|&item| item == 0)
+            || self.values[8..14].iter().all(|&item| item == 0);
+    }
+    fn winning(&self) -> Side {
+        if self.values[0] > self.values[7] {
+            return Side::Right;
+        } else {
+            return Side::Left;
+        }
+    }
 }
 
-/*
- ___________
-(    0      )
- ‾‾‾‾‾‾‾‾‾‾‾
- ___  |  ___
-( 1 ) | ( 7 )
- ‾‾‾  |  ‾‾‾
- ___  |  ___
-( 2 ) | ( 8 )
- ‾‾‾  |  ‾‾‾
- ___  |  ___
-( 3 ) | ( 9 )
- ‾‾   |  ‾‾
- ___  |  ____
-( 4 ) | ( 10 )
- ‾‾‾  |  ‾‾‾‾
- ___  |  ____
-( 5 ) | ( 11 )
- ‾‾‾  |  ‾‾‾‾
- ___________
-(     6     )
- ‾‾‾‾‾‾‾‾‾‾‾
-*/
+
+fn get_end_index(start_index: usize, amount: u32) -> usize {
+    let mut total = start_index + amount as usize;
+    while total > 13 {
+        total -= 14
+    }
+
+    return total;
+}

@@ -1,9 +1,13 @@
 [package]
-name = "mancala"
+name = "mancala_board"
 version = "0.1.0"
 authors = ["Benjamin Swerdlow <Swerdlowbenjamin@gmail.com>"]
 edition = "2018"
-
+repository = "https://github.com/theswerd/mancala"
+homepage = "https://github.com/theswerd/mancala"
+license = "MIT"
+keywords = ["mancala", "game", "boardgame"]
+description = "A package with a minimal mancala board to play with."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
