@@ -1,4 +1,3 @@
-
 pub fn basic_board() -> MancalaBoard {
     return MancalaBoard {
         values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
@@ -16,7 +15,7 @@ pub struct MancalaBoard {
 }
 
 pub impl MancalaBoard {
-    fn print(&self) {
+    pub fn print(&self) {
         println!(
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
             self.values[0]
@@ -36,7 +35,7 @@ pub impl MancalaBoard {
         );
     }
 
-    fn move_piece(&mut self, index: usize, side: Side) -> bool {
+    pub fn move_piece(&mut self, index: usize, side: Side) -> bool {
         let mut amount = self.values[index];
 
         self.values[index] = 0;
@@ -66,11 +65,11 @@ pub impl MancalaBoard {
         }
     }
 
-    fn game_over(&self) -> bool {
+    pub fn game_over(&self) -> bool {
         return self.values[1..7].iter().all(|&item| item == 0)
             || self.values[8..14].iter().all(|&item| item == 0);
     }
-    fn winning(&self) -> Side {
+    pub fn winning(&self) -> Side {
         if self.values[0] > self.values[7] {
             return Side::Right;
         } else {
@@ -78,7 +77,6 @@ pub impl MancalaBoard {
         }
     }
 }
-
 
 fn get_end_index(start_index: usize, amount: u32) -> usize {
     let mut total = start_index + amount as usize;
