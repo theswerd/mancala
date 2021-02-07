@@ -3,3 +3,12 @@
 [[package]]
 name = "ai"
 version = "0.1.0"
+dependencies = [
+ "mancala_board",
+]
+
+[[package]]
+name = "mancala_board"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0251653c4c8fa7764a850f5808a96c543ede8050a4ce397861db97188f28908f"

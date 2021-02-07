@@ -1,3 +1,7 @@
+#[deprecated(
+    since = "0.1.2",
+    note = "Please use the MancalaBoard::default() instead"
+)]
 pub fn basic_board() -> MancalaBoard {
     return MancalaBoard {
         values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
@@ -15,6 +19,18 @@ pub struct MancalaBoard {
 }
 
 impl MancalaBoard {
+    pub fn default()-> MancalaBoard {
+        return MancalaBoard {
+            values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
+        };
+    }
+
+    pub fn from_position(values: [u32;14])-> MancalaBoard {
+        return MancalaBoard {
+            values: values,
+        };
+    }
+
     pub fn print(&self) {
         println!(
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
