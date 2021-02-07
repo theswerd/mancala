@@ -70,7 +70,8 @@ impl MancalaBoard {
 
         self.values[index] = 0;
         let mut add_index = index + 1;
-        loop {
+
+        return loop {
             while add_index < (index + amount as usize + 1) {
                 let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
                 if formatted_index == 0 && side == Side::Left
@@ -84,13 +85,14 @@ impl MancalaBoard {
             }
             let end_index = get_end_index(index, amount);
             if end_index == 0 && end_index == 7 {
-                return true;
+                break true;
             } else if self.values[end_index] > 1 {
                 add_index = end_index;
             } else {
-                return false;
+                break false;
             }
         }
+       
     }
 
     pub fn game_over(&self) -> bool {

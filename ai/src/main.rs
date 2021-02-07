@@ -7,117 +7,118 @@ fn main() {
     //BOARD SIZE * OUTPUT SIZE = WEIGHTS FOR ONE LAYER
     //14 * 6 = 84
     let mut rng = rand::thread_rng();
-    
+
     let mut model1 = Model::new(&mut rng);
-    
+
     let mut model2 = Model::new(&mut rng);
-    
+
     for round in 0..10000 {
         {
-        println!("ROUND: {}", round);
-        let model1isFirst: bool = rng.gen();
-        // let mut model1Side: Side;
-        // if model1isFirst {
-        //     model1Side = Side::Left;
-        // } else {
-        //     model1Side = Side::Right;
-        // }
+            println!("ROUND: {}", round);
+            let model1is_first: bool = rng.gen();
+            // let mut model1Side: Side;
+            // if model1isFirst {
+            //     model1Side = Side::Left;
+            // } else {
+            //     model1Side = Side::Right;
+            // }
 
-        let mut board = MancalaBoard::default();
-        let mut iteration = 0;
-        loop {
-            iteration +=1;
+            let mut board = MancalaBoard::default();
+            let mut iteration = 0;
+            loop {
+                iteration += 1;
+                println!("MOVE: {}", iteration);
 
-            
-            if model1isFirst {
-                
-                let model1_best_move = model1.best_move(&board);
-                
-                if !board.is_move_legal(model1_best_move + 1) {
-                    model1 = Model::new(&mut rng);
-                    println!("LOOP NUMBER: {}", iteration);
-                    println!("FOUL: MODEL 1");
-                    break;
-                }
-            
-                board.move_from_side(model1_best_move, Side::Left);
-            
-                if board.game_over() {
-                    if board.winning() == Side::Left {
-                        model2 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 2");
-                    } else {
+                if model1is_first {
+                    let model1_best_move = model1.best_move(&board);
+
+                    if !board.is_move_legal(model1_best_move + 1) {
                         model1 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 1");
+                        println!("LOOP NUMBER: {}", iteration);
+                        println!("FOUL: MODEL 1");
+                        break;
                     }
-                    break;
-                }
-                board.flip();
-                
-                let model2_best_move = model2.best_move(&board);
-                if !board.is_move_legal(model2_best_move + 1) {
-                    model2 = Model::new(&mut rng);
-                    println!("LOOP NUMBER: {}", iteration);
-                    println!("FOUL: MODEL 2");
+                    println!("BEFORE SIDE");
 
-                    break;
-                }
-                board.move_from_side(model2_best_move, Side::Left);
-                if board.game_over() {
-                    if board.winning() == Side::Left {
-                        model2 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 2");
-                    } else {
-                        model1 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 1");
-                    }
-                    break;
-                }
-                board.flip();
-            } else {
-                let model2_best_move = model2.best_move(&board);
-                if !board.is_move_legal(model2_best_move + 1) {
-                    model2 = Model::new(&mut rng);
-                    println!("LOOP NUMBER: {}", iteration);
-                    println!("FOUL: MODEL 2");
-                    break;
-                }
-                board.move_from_side(model2_best_move, Side::Left);
-                if board.game_over() {
-                    if board.winning() == Side::Left {
-                        model2 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 2");
-                    } else {
-                        model1 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 1");
-                    }
-                    break;
-                }
-                board.flip();
-                
-                let model1_best_move = model1.best_move(&board);
-                if !board.is_move_legal(model1_best_move + 1) {
-                    model1 = Model::new(&mut rng);
-                    println!("LOOP NUMBER: {}", iteration);
+                    board.move_from_side(model1_best_move, Side::Left);
+                    println!("AFTER SIDE SIDE");
 
-                    println!("FOUL: MODEL 1");
-
-                    break;
-                }
-                board.move_from_side(model1_best_move, Side::Left);
-                if board.game_over() {
-                    if board.winning() == Side::Left {
-                        model2 = Model::new(&mut rng);
-                    } else {
-                        model1 = Model::new(&mut rng);
-                        println!("WINNER: MODEL 1");
+                    if board.game_over() {
+                        if board.winning() == Side::Left {
+                            model2 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 2");
+                        } else {
+                            model1 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 1");
+                        }
+                        break;
                     }
-                    break;
+                    board.flip();
+
+                    let model2_best_move = model2.best_move(&board);
+                    if !board.is_move_legal(model2_best_move + 1) {
+                        model2 = Model::new(&mut rng);
+                        println!("LOOP NUMBER: {}", iteration);
+                        println!("FOUL: MODEL 2");
+
+                        break;
+                    }
+                    board.move_from_side(model2_best_move, Side::Left);
+                    if board.game_over() {
+                        if board.winning() == Side::Left {
+                            model2 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 2");
+                        } else {
+                            model1 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 1");
+                        }
+                        break;
+                    }
+                    board.flip();
+                } else {
+                    let model2_best_move = model2.best_move(&board);
+                    if !board.is_move_legal(model2_best_move + 1) {
+                        model2 = Model::new(&mut rng);
+                        println!("LOOP NUMBER: {}", iteration);
+                        println!("FOUL: MODEL 2");
+                        break;
+                    }
+                    board.move_from_side(model2_best_move, Side::Left);
+                    if board.game_over() {
+                        if board.winning() == Side::Left {
+                            model2 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 2");
+                        } else {
+                            model1 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 1");
+                        }
+                        break;
+                    }
+                    board.flip();
+
+                    let model1_best_move = model1.best_move(&board);
+                    if !board.is_move_legal(model1_best_move + 1) {
+                        model1 = Model::new(&mut rng);
+                        println!("LOOP NUMBER: {}", iteration);
+
+                        println!("FOUL: MODEL 1");
+
+                        break;
+                    }
+                    board.move_from_side(model1_best_move, Side::Left);
+                    if board.game_over() {
+                        if board.winning() == Side::Left {
+                            model2 = Model::new(&mut rng);
+                        } else {
+                            model1 = Model::new(&mut rng);
+                            println!("WINNER: MODEL 1");
+                        }
+                        break;
+                    }
+                    board.flip();
                 }
-                board.flip();
             }
         }
-    }
     }
 
     println!("MODEL 1 WEIGHTS: {:?}", model1.weights);
@@ -130,7 +131,6 @@ struct Model {
 
 impl Model {
     pub fn new(rng: &mut ThreadRng) -> Model {
-
         return Model {
             weights: arr![rng.gen(); 84],
         };
@@ -141,7 +141,6 @@ impl Model {
     }
 
     pub fn outputs(&self, board: &MancalaBoard) -> [f64; 6] {
-
         let mut outputs: [f64; 6] = [0f64; 6];
 
         for (position, amount) in board.values.iter().enumerate() {
