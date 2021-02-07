@@ -54,7 +54,7 @@ impl MancalaBoard {
         if (side == Side::Right) {
             addition = 8;
         }
-        return self.move_piece(index);
+        return self.move_piece(index, side);
     }
 
     pub fn move_piece(&mut self, index: usize, side: Side) -> bool {
