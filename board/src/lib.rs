@@ -65,13 +65,12 @@ impl MancalaBoard {
         return self.move_piece(index + addition, side);
     }
 
-    pub fn move_piece(&mut self, index: usize, side: Side) -> bool {
-        let mut amount = self.values[index];
-
-        self.values[index] = 0;
-        let mut add_index = index + 1;
-
+    pub fn move_piece(&mut self, mut index: usize, side: Side) -> bool {
         return loop {
+            let mut add_index = index + 1;
+            let mut amount = self.values[add_index];
+            self.values[index] = 0;
+
             while add_index < add_index + amount as usize {
                 let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
                 if formatted_index == 0 && side == Side::Left
@@ -87,12 +86,11 @@ impl MancalaBoard {
             if end_index == 0 && end_index == 7 {
                 break true;
             } else if self.values[end_index] > 1 {
-                add_index = end_index;
+                index = end_index;
             } else {
                 break false;
             }
-        }
-       
+        };
     }
 
     pub fn game_over(&self) -> bool {
