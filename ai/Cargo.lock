@@ -55,9 +55,9 @@ checksum = "7ccac4b00700875e6a07c6cde370d44d32fa01c5a65cdd2fca6858c479d28bb3"
 
 [[package]]
 name = "mancala_board"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd1dd2a9e2d57a4ce419f46d7230ece46bc4e65581a3bad5a032d5b073b5c20c"
+checksum = "fdc0f52edd485d1ea33f83db3afe18743d25e3e27c9834d3e0572c103ba87bdb"
 
 [[package]]
 name = "ppv-lite86"

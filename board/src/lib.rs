@@ -19,16 +19,14 @@ pub struct MancalaBoard {
 }
 
 impl MancalaBoard {
-    pub fn default()-> MancalaBoard {
+    pub fn default() -> MancalaBoard {
         return MancalaBoard {
             values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
         };
     }
 
-    pub fn from_position(values: [u32;14])-> MancalaBoard {
-        return MancalaBoard {
-            values: values,
-        };
+    pub fn from_position(values: [u32; 14]) -> MancalaBoard {
+        return MancalaBoard { values: values };
     }
 
     pub fn print(&self) {
@@ -49,6 +47,14 @@ impl MancalaBoard {
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
             self.values[7]
         );
+    }
+
+    pub fn move_from_side(&mut self, index: usize, side: Side) -> bool {
+        let mut addition: usize = 1;
+        if (side == Side::Right) {
+            addition = 8;
+        }
+        return self.move_piece(index);
     }
 
     pub fn move_piece(&mut self, index: usize, side: Side) -> bool {
@@ -91,6 +97,10 @@ impl MancalaBoard {
         } else {
             return Side::Left;
         }
+    }
+
+    pub fn is_move_legal(&self, index: usize) -> bool {
+        return index != 7 && index != 0 && self.values[index] != 0;
     }
 }
 
