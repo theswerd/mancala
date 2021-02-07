@@ -68,7 +68,7 @@ impl MancalaBoard {
     pub fn move_piece(&mut self, mut index: usize, side: Side) -> bool {
         return loop {
             let mut add_index = index + 1;
-            let mut amount = self.values[add_index];
+            let mut amount = self.values[index];
             self.values[index] = 0;
 
             while add_index < add_index + amount as usize {
