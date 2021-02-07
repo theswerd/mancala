@@ -15,7 +15,7 @@ pub enum Side {
 }
 
 pub struct MancalaBoard {
-    values: [u32; 14],
+    pub values: [u32; 14],
 }
 
 impl MancalaBoard {
