@@ -72,7 +72,7 @@ impl MancalaBoard {
         let mut add_index = index + 1;
 
         return loop {
-            while add_index < (index + amount as usize + 1) {
+            while add_index < add_index + amount as usize {
                 let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
                 if formatted_index == 0 && side == Side::Left
                     || formatted_index == 7 && side == Side::Right
