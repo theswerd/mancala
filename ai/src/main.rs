@@ -4,20 +4,27 @@ use mancala_board::MancalaBoard;
 use rand::prelude::*;
 
 fn main() {
-    let board = MancalaBoard::default();
-
     //BOARD SIZE * OUTPUT SIZE = WEIGHTS FOR ONE LAYER
     //14 * 6 = 84
 
+    println!("MODEL WEIGHTS: {:?}", model.weights);
+    println!("CURRENT OUTPUT: {:?}", model.get_outputs(board));
+
     let mut model1 = Model::new();
     let mut model2 = Model::new();
+    let mut rng = rand::thread_rng();
 
-    println!("MODEL WEIGHTS: {:?}", model.weights);
-    println!("CURRENT OUTPUT: {:?}", model.get_outputs(board))
+    for round in 0..10000 {
+        let model1IsLeft: bool = rng.gen();
+        let mut model1Side: Side;
+        if (model1isLeft) {
+            model1Side = Side::Left;
+        } else {
+            model1Side = Side::Right;
+        }
+        let board = MancalaBoard::default();
 
-
-    for i in 0..10000 {
-        
+        loop {}
     }
 }
 
@@ -38,7 +45,7 @@ impl Model {
         return Model { weights: weights };
     }
 
-    pub fn get_outputs(&self, board: MancalaBoard) -> [f64; 6] {
+    pub fn outputs(&self, board: MancalaBoard) -> [f64; 6] {
         board.print();
 
         let mut outputs: [f64; 6] = [0f64; 6];
@@ -49,10 +56,23 @@ impl Model {
                 let weight = self.weights[weight_index];
 
                 // WEIGHTED AVERAGE
-                outputs[i] += (weight * *amount as f64 / board.values.len()as f64) as f64;
+                outputs[i] += (weight * *amount as f64 / board.values.len() as f64) as f64;
             }
         }
 
         return outputs;
+    }
+
+    pub fn best_move(&self, board: MancalaBoard) -> usize {
+        // TODO: OPTIMIZE
+        let mut max_index: usize = 0;
+        let mut max_value: f64 = 0;
+        for (index, value) in self.outputs().iter.enumerate() {
+            if (value > max_value) {
+                max_index = index;
+                max_value = value;
+            }
+        }
+        return value;
     }
 }
