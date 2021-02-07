@@ -59,7 +59,7 @@ impl MancalaBoard {
 
     pub fn move_from_side(&mut self, index: usize, side: Side) -> bool {
         let mut addition: usize = 1;
-        if (side == Side::Right) {
+        if side == Side::Right {
             addition = 8;
         }
         return self.move_piece(index + addition, side);
@@ -82,10 +82,6 @@ impl MancalaBoard {
             add_index += 1;
         }
         let end_index = get_end_index(index, amount);
-        println!("END INDEX: {}", index);
-
-        self.print();
-
         if end_index == 0 && end_index == 7 {
             return true;
         } else if self.values[end_index] > 1 {

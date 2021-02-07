@@ -1,6 +1,6 @@
 [package]
 name = "mancala_board"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Benjamin Swerdlow <Swerdlowbenjamin@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/theswerd/mancala"
