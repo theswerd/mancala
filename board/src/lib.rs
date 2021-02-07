@@ -83,10 +83,11 @@ impl MancalaBoard {
                 add_index += 1;
             }
             let end_index = get_end_index(index, amount);
-            if end_index == 0 && end_index == 7 {
+            if end_index == 0 || end_index == 7 {
                 break true;
             } else if self.values[end_index] > 1 {
                 index = end_index;
+                continue;
             } else {
                 break false;
             }
@@ -113,7 +114,7 @@ impl MancalaBoard {
 fn get_end_index(start_index: usize, amount: u32) -> usize {
     let mut total = start_index + amount as usize;
     while total > 13 {
-        total -= 14
+        total -= 14;
     }
 
     return total;
