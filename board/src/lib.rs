@@ -70,24 +70,26 @@ impl MancalaBoard {
 
         self.values[index] = 0;
         let mut add_index = index + 1;
-        while add_index < (index + amount as usize + 1) {
-            let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
-            if formatted_index == 0 && side == Side::Left
-                || formatted_index == 7 && side == Side::Right
-            {
-                amount += 1;
-            } else {
-                self.values[formatted_index] += 1;
+        loop {
+            while add_index < (index + amount as usize + 1) {
+                let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
+                if formatted_index == 0 && side == Side::Left
+                    || formatted_index == 7 && side == Side::Right
+                {
+                    amount += 1;
+                } else {
+                    self.values[formatted_index] += 1;
+                }
+                add_index += 1;
             }
-            add_index += 1;
-        }
-        let end_index = get_end_index(index, amount);
-        if end_index == 0 && end_index == 7 {
-            return true;
-        } else if self.values[end_index] > 1 {
-            return self.move_piece(end_index, side);
-        } else {
-            return false;
+            let end_index = get_end_index(index, amount);
+            if end_index == 0 && end_index == 7 {
+                return true;
+            } else if self.values[end_index] > 1 {
+                add_index = end_index;
+            } else {
+                return false;
+            }
         }
     }
 

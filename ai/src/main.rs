@@ -28,7 +28,6 @@ fn main() {
         loop {
             iteration +=1;
 
-            println!("LOOP NUMBER: {}", iteration);
             
             if model1isFirst {
                 
@@ -36,6 +35,7 @@ fn main() {
                 
                 if !board.is_move_legal(model1_best_move + 1) {
                     model1 = Model::new(&mut rng);
+                    println!("LOOP NUMBER: {}", iteration);
                     println!("FOUL: MODEL 1");
                     break;
                 }
@@ -57,6 +57,7 @@ fn main() {
                 let model2_best_move = model2.best_move(&board);
                 if !board.is_move_legal(model2_best_move + 1) {
                     model2 = Model::new(&mut rng);
+                    println!("LOOP NUMBER: {}", iteration);
                     println!("FOUL: MODEL 2");
 
                     break;
@@ -77,6 +78,7 @@ fn main() {
                 let model2_best_move = model2.best_move(&board);
                 if !board.is_move_legal(model2_best_move + 1) {
                     model2 = Model::new(&mut rng);
+                    println!("LOOP NUMBER: {}", iteration);
                     println!("FOUL: MODEL 2");
                     break;
                 }
@@ -96,6 +98,8 @@ fn main() {
                 let model1_best_move = model1.best_move(&board);
                 if !board.is_move_legal(model1_best_move + 1) {
                     model1 = Model::new(&mut rng);
+                    println!("LOOP NUMBER: {}", iteration);
+
                     println!("FOUL: MODEL 1");
 
                     break;
