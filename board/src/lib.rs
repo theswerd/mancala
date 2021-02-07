@@ -50,9 +50,9 @@ impl MancalaBoard {
     }
 
     pub fn flip(&mut self) {
-        let left = self.values[0..7];
-        let right = self.values[7..14];
-        self.values = right + left;
+        let left = &self.values[0..7];
+        let right = &self.values[7..14];
+        self.values = [right, left].concat();
     }
 
     pub fn move_from_side(&mut self, index: usize, side: Side) -> bool {
