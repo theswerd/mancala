@@ -53,7 +53,7 @@ impl MancalaBoard {
         let left = &self.values[0..7];
         let right = &self.values[7..14];
         for (index, value) in [right, left].concat().iter().enumerate() {
-            self.values[index] = value;
+            self.values[index] = *value;
         }
     }
 
