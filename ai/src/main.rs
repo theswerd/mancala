@@ -6,12 +6,14 @@ use rand::prelude::*;
 fn main() {
     //BOARD SIZE * OUTPUT SIZE = WEIGHTS FOR ONE LAYER
     //14 * 6 = 84
-
-    let mut model1 = Model::new();
-    let mut model2 = Model::new();
     let mut rng = rand::thread_rng();
-
+    
+    let mut model1 = Model::new(&mut rng);
+    
+    let mut model2 = Model::new(&mut rng);
+    
     for round in 0..10000 {
+        {
         println!("ROUND: {}", round);
         let model1isFirst: bool = rng.gen();
         // let mut model1Side: Side;
@@ -22,14 +24,18 @@ fn main() {
         // }
 
         let mut board = MancalaBoard::default();
-
+        let mut iteration = 0;
         loop {
+            iteration +=1;
+
+            println!("LOOP NUMBER: {}", iteration);
+            
             if model1isFirst {
                 
                 let model1_best_move = model1.best_move(&board);
                 
                 if !board.is_move_legal(model1_best_move + 1) {
-                    model1 = Model::new();
+                    model1 = Model::new(&mut rng);
                     println!("FOUL: MODEL 1");
                     break;
                 }
@@ -38,10 +44,10 @@ fn main() {
             
                 if board.game_over() {
                     if board.winning() == Side::Left {
-                        model2 = Model::new();
+                        model2 = Model::new(&mut rng);
                         println!("WINNER: MODEL 2");
                     } else {
-                        model1 = Model::new();
+                        model1 = Model::new(&mut rng);
                         println!("WINNER: MODEL 1");
                     }
                     break;
@@ -50,7 +56,7 @@ fn main() {
                 
                 let model2_best_move = model2.best_move(&board);
                 if !board.is_move_legal(model2_best_move + 1) {
-                    model2 = Model::new();
+                    model2 = Model::new(&mut rng);
                     println!("FOUL: MODEL 2");
 
                     break;
@@ -58,10 +64,10 @@ fn main() {
                 board.move_from_side(model2_best_move, Side::Left);
                 if board.game_over() {
                     if board.winning() == Side::Left {
-                        model2 = Model::new();
+                        model2 = Model::new(&mut rng);
                         println!("WINNER: MODEL 2");
                     } else {
-                        model1 = Model::new();
+                        model1 = Model::new(&mut rng);
                         println!("WINNER: MODEL 1");
                     }
                     break;
@@ -70,17 +76,17 @@ fn main() {
             } else {
                 let model2_best_move = model2.best_move(&board);
                 if !board.is_move_legal(model2_best_move + 1) {
-                    model2 = Model::new();
+                    model2 = Model::new(&mut rng);
                     println!("FOUL: MODEL 2");
                     break;
                 }
                 board.move_from_side(model2_best_move, Side::Left);
                 if board.game_over() {
                     if board.winning() == Side::Left {
-                        model2 = Model::new();
+                        model2 = Model::new(&mut rng);
                         println!("WINNER: MODEL 2");
                     } else {
-                        model1 = Model::new();
+                        model1 = Model::new(&mut rng);
                         println!("WINNER: MODEL 1");
                     }
                     break;
@@ -89,7 +95,7 @@ fn main() {
                 
                 let model1_best_move = model1.best_move(&board);
                 if !board.is_move_legal(model1_best_move + 1) {
-                    model1 = Model::new();
+                    model1 = Model::new(&mut rng);
                     println!("FOUL: MODEL 1");
 
                     break;
@@ -97,9 +103,9 @@ fn main() {
                 board.move_from_side(model1_best_move, Side::Left);
                 if board.game_over() {
                     if board.winning() == Side::Left {
-                        model2 = Model::new();
+                        model2 = Model::new(&mut rng);
                     } else {
-                        model1 = Model::new();
+                        model1 = Model::new(&mut rng);
                         println!("WINNER: MODEL 1");
                     }
                     break;
@@ -107,6 +113,7 @@ fn main() {
                 board.flip();
             }
         }
+    }
     }
 
     println!("MODEL 1 WEIGHTS: {:?}", model1.weights);
@@ -118,8 +125,7 @@ struct Model {
 }
 
 impl Model {
-    pub fn new() -> Model {
-        let mut rng = rand::thread_rng();
+    pub fn new(rng: &mut ThreadRng) -> Model {
 
         return Model {
             weights: arr![rng.gen(); 84],
