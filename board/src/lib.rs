@@ -87,7 +87,6 @@ impl MancalaBoard {
             if end_index == 0 || end_index == 7 {
                 break true;
             } else if self.values[end_index] > 1 {
-                println!("NEW INDEX: {}", index);
                 index = end_index;
                 continue;
             } else {
