@@ -67,11 +67,12 @@ impl MancalaBoard {
 
     pub fn move_piece(&mut self, mut index: usize, side: Side) -> bool {
         return loop {
-            let mut add_index = index + 1;
             let mut amount = self.values[index];
+            let mut add_index = index + 1;
+
             self.values[index] = 0;
 
-            while add_index < add_index + amount as usize {
+            while add_index < index + amount as usize {
                 let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
                 if formatted_index == 0 && side == Side::Left
                     || formatted_index == 7 && side == Side::Right
