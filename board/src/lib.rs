@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test;
+
 #[deprecated(
     since = "0.1.2",
     note = "Please use the MancalaBoard::default() instead"
