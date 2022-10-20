@@ -3,30 +3,49 @@
     note = "Please use the MancalaBoard::default() instead"
 )]
 pub fn basic_board() -> MancalaBoard {
-    return MancalaBoard {
+    MancalaBoard {
         values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
-    };
+    }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Side {
     Left,
     Right,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum MoveResult {
+    Capture(usize),
+    ExtraTurn,
+    IllegalMove,
+    Done,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum Winner {
+    Side(Side),
+    Tie,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
 pub struct MancalaBoard {
     pub values: [u32; 14],
 }
 
 impl MancalaBoard {
+    pub fn new() -> MancalaBoard {
+        MancalaBoard { values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    }
+
     pub fn default() -> MancalaBoard {
-        return MancalaBoard {
+        MancalaBoard {
             values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
-        };
+        }
     }
 
     pub fn from_position(values: [u32; 14]) -> MancalaBoard {
-        return MancalaBoard { values: values };
+        MancalaBoard { values }
     }
 
     pub fn print(&self) {
@@ -50,73 +69,104 @@ impl MancalaBoard {
     }
 
     pub fn flip(&mut self) {
-        let left = &self.values[0..7];
-        let right = &self.values[7..14];
-        for (index, value) in [right, left].concat().iter().enumerate() {
-            self.values[index] = *value;
+        for i in 0..7 {
+            self.values.swap(i, i + 7)
         }
     }
 
-    pub fn move_from_side(&mut self, index: usize, side: Side) -> bool {
-        let mut addition: usize = 1;
-        if side == Side::Right {
-            addition = 8;
-        }
-        return self.move_piece(index + addition, side);
+    pub fn clear_dish(&mut self, index: usize) -> u32 {
+        let dish = self.values[index];
+        self.values[index] = 0;
+        dish
     }
 
-    pub fn move_piece(&mut self, mut index: usize, side: Side) -> bool {
-        return loop {
-            let mut amount = self.values[index];
-            let mut add_index = index + 1;
-
-            self.values[index] = 0;
-
-            while add_index < index + amount as usize {
-                let formatted_index = add_index - 14 * ((add_index / 14) as f32).ceil() as usize;
-                if formatted_index == 0 && side == Side::Left
-                    || formatted_index == 7 && side == Side::Right
-                {
-                    amount += 1;
-                } else {
-                    self.values[formatted_index] += 1;
-                }
-                add_index += 1;
-            }
-            let end_index = get_end_index(index, amount);
-            if end_index == 0 || end_index == 7 {
-                break true;
-            } else if self.values[end_index] > 1 {
-                index = end_index;
-                continue;
-            } else {
-                break false;
-            }
+    pub fn move_from_side(&mut self, index: usize, side: Side) -> MoveResult {
+        let offset = match side {
+            Side::Left => 0,
+            Side::Right => 7,
         };
+        self.move_piece(index + offset, side)
+    }
+
+    pub fn move_piece(&mut self, index: usize, side: Side) -> MoveResult {
+        if !self.is_move_legal(index) {
+            return MoveResult::IllegalMove
+        }
+
+        let mut hand = self.clear_dish(index);
+
+        let mut offset = 1;
+
+        while hand > 0 {
+            let current_index = (index + offset) % 14;
+
+            if !(current_index == 0 && side == Side::Left || current_index == 7 && side == Side::Right) {
+                self.values[current_index] += 1;
+                hand -= 1;
+            }
+
+            if hand == 0 {
+                if ![0, 7].contains(&current_index) && self.values[current_index] == 1 {
+                    return MoveResult::Capture(current_index)
+                }
+                
+                if current_index == 0 && side == Side::Right || current_index == 7 && side == Side::Left {
+                    return MoveResult::ExtraTurn
+                }
+            }
+
+            offset += 1;
+        }
+
+        MoveResult::Done
+    }
+
+    pub fn capture(&mut self, index: usize, side: Side) {
+        let other_side_index = (index + 7) % 14;
+
+        let bank_index = match side {
+            Side::Left => 7,
+            Side::Right => 0,
+        };
+        
+        self.values[bank_index] += self.clear_dish(index) + self.clear_dish(other_side_index);
+    }
+
+    pub fn collect_dishes(&mut self) {
+        for i in 1..7 { // left side
+            self.values[7] += self.clear_dish(i);
+        }
+        for i in 8..14 { // right side
+            self.values[0] += self.clear_dish(i);
+        }
+    }
+
+    pub fn is_side_empty(&self, side: Side) -> bool {
+        let slice = match side {
+            Side::Left => 1..7,
+            Side::Right => 8..14,
+        };
+
+        self.values[slice]
+            .iter()
+            .all(|&quantity| quantity == 0)
     }
 
     pub fn game_over(&self) -> bool {
-        return self.values[1..7].iter().all(|&item| item == 0)
-            || self.values[8..14].iter().all(|&item| item == 0);
+        self.is_side_empty(Side::Left) || self.is_side_empty(Side::Right)
     }
-    pub fn winning(&self) -> Side {
-        if self.values[0] > self.values[7] {
-            return Side::Right;
-        } else {
-            return Side::Left;
+
+    pub fn winner(&mut self) -> Winner {
+        use std::cmp::Ordering::*;
+
+        match self.values[0].cmp(&self.values[7]) {
+            Less => Winner::Side(Side::Left),
+            Greater => Winner::Side(Side::Right),
+            Equal => Winner::Tie,
         }
     }
 
     pub fn is_move_legal(&self, index: usize) -> bool {
-        return index != 7 && index != 0 && self.values[index] != 0;
+        ![0, 7].contains(&index) && self.values[index] > 0
     }
-}
-
-fn get_end_index(start_index: usize, amount: u32) -> usize {
-    let mut total = start_index + amount as usize;
-    while total > 13 {
-        total -= 14;
-    }
-
-    return total;
 }
