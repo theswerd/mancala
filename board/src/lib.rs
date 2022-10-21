@@ -37,18 +37,23 @@ pub struct MancalaBoard {
 }
 
 impl MancalaBoard {
-    pub fn new() -> MancalaBoard {
-        MancalaBoard { values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    pub fn new(initial: u32) -> Self {
+        Self { values: [
+            0,
+            initial, initial, initial,
+            initial, initial, initial, 
+            0,
+            initial, initial, initial,
+            initial, initial, initial, 
+        ]}
     }
 
-    pub fn default() -> MancalaBoard {
-        MancalaBoard {
-            values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
-        }
+    pub fn default() -> Self {
+        Self::new(4)
     }
 
-    pub fn from_position(values: [u32; 14]) -> MancalaBoard {
-        MancalaBoard { values }
+    pub fn from_position(values: [u32; 14]) -> Self {
+        Self { values }
     }
 
     pub fn print(&self) {
@@ -129,7 +134,9 @@ impl MancalaBoard {
 
     /// Captures the selected and the opposing dish, and places them in the selected side
     pub fn capture(&mut self, index: usize, side: Side) {
-        let other_side_index = (index + 7) % 14;
+        let other_side_index = 14 - index;
+
+        if [0, 7].contains(&index) { return }
 
         let bank_index = match side {
             Side::Left => 7,
