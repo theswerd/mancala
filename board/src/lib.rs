@@ -77,12 +77,14 @@ impl MancalaBoard {
         }
     }
 
+    /// Clears the selected dish and returns it's contents
     pub fn clear_dish(&mut self, index: usize) -> u32 {
         let dish = self.values[index];
         self.values[index] = 0;
         dish
     }
 
+    // Fixes indexing for a specific side, so you can always input between 0 and 6
     pub fn move_from_side(&mut self, index: usize, side: Side) -> MoveResult {
         let offset = match side {
             Side::Left => 0,
@@ -91,6 +93,7 @@ impl MancalaBoard {
         self.move_piece(index + offset, side)
     }
 
+    /// Moves the selected dish into the hand moves them in anti-clockwise direction (by incrementing index).
     pub fn move_piece(&mut self, index: usize, side: Side) -> MoveResult {
         if !self.is_move_legal(index) {
             return MoveResult::IllegalMove
@@ -124,6 +127,7 @@ impl MancalaBoard {
         MoveResult::Done
     }
 
+    /// Captures the selected and the opposing dish, and places them in the selected side
     pub fn capture(&mut self, index: usize, side: Side) {
         let other_side_index = (index + 7) % 14;
 
@@ -135,6 +139,7 @@ impl MancalaBoard {
         self.values[bank_index] += self.clear_dish(index) + self.clear_dish(other_side_index);
     }
 
+    /// Collects all the dishes and places them in their respective side's bank.
     pub fn collect_dishes(&mut self) {
         for i in 1..7 { // left side
             self.values[7] += self.clear_dish(i);
@@ -144,6 +149,7 @@ impl MancalaBoard {
         }
     }
 
+    /// Checks if the side is empty
     pub fn is_side_empty(&self, side: Side) -> bool {
         let slice = match side {
             Side::Left => 1..7,
