@@ -117,7 +117,11 @@ impl MancalaBoard {
             }
 
             if hand == 0 {
-                if ![0, 7].contains(&current_index) && self.values[current_index] == 1 {
+                if 
+                    ![0, 7].contains(&current_index)
+                    && self.values[current_index] == 1
+                    && self.index_side(current_index) == side
+                {
                     return MoveResult::Capture(current_index)
                 }
                 
@@ -184,5 +188,12 @@ impl MancalaBoard {
 
     pub fn is_move_legal(&self, index: usize) -> bool {
         ![0, 7].contains(&index) && self.values[index] > 0
+    }
+    pub fn index_side(&self, index: usize) -> Side {
+        if (1..=7).contains(&index) {
+            Side::Left
+        } else {
+            Side::Right
+        }
     }
 }
