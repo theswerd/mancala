@@ -11,13 +11,13 @@ pub fn basic_board() -> MancalaBoard {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Side {
     Left,
     Right,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum MoveResult {
     Capture(usize),
     ExtraTurn,
@@ -25,7 +25,7 @@ pub enum MoveResult {
     Done,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Winner {
     Side(Side),
     Tie,
@@ -118,9 +118,10 @@ impl MancalaBoard {
 
             if hand == 0 {
                 if 
-                    ![0, 7].contains(&current_index)
-                    && self.values[current_index] == 1
-                    && self.index_side(current_index) == side
+                    ![0, 7].contains(&current_index) // if it isn't the bank
+                    && self.values[current_index] == 1 // if it was previously empty
+                    && self.index_side(current_index) == side // if the side is yours
+                    && self.values[self.opposite_dish_index(current_index)] > 0 // if the other side has something
                 {
                     return MoveResult::Capture(current_index)
                 }
@@ -138,7 +139,7 @@ impl MancalaBoard {
 
     /// Captures the selected and the opposing dish, and places them in the selected side
     pub fn capture(&mut self, index: usize, side: Side) {
-        let other_side_index = 14 - index;
+        let other_side_index = self.opposite_dish_index(index);
 
         if [0, 7].contains(&index) { return }
 
@@ -172,10 +173,12 @@ impl MancalaBoard {
             .all(|&quantity| quantity == 0)
     }
 
+    #[inline]
     pub fn game_over(&self) -> bool {
         self.is_side_empty(Side::Left) || self.is_side_empty(Side::Right)
     }
 
+    #[inline]
     pub fn winner(&mut self) -> Winner {
         use std::cmp::Ordering::*;
 
@@ -186,14 +189,20 @@ impl MancalaBoard {
         }
     }
 
+    #[inline]
     pub fn is_move_legal(&self, index: usize) -> bool {
         ![0, 7].contains(&index) && self.values[index] > 0
     }
+    #[inline]
     pub fn index_side(&self, index: usize) -> Side {
         if (1..=7).contains(&index) {
             Side::Left
         } else {
             Side::Right
         }
+    }
+    #[inline]
+    pub fn opposite_dish_index(&self, index: usize) -> usize {
+        14 - index
     }
 }
