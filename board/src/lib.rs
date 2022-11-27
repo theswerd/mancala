@@ -33,11 +33,11 @@ pub enum Winner {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
 pub struct MancalaBoard {
-    pub values: [u32; 14],
+    pub values: [usize; 14],
 }
 
 impl MancalaBoard {
-    pub fn new(initial: u32) -> Self {
+    pub fn new(initial: usize) -> Self {
         Self { values: [
             0,
             initial, initial, initial,
@@ -52,7 +52,7 @@ impl MancalaBoard {
         Self::new(4)
     }
 
-    pub fn from_position(values: [u32; 14]) -> Self {
+    pub fn from_position(values: [usize; 14]) -> Self {
         Self { values }
     }
 
@@ -83,7 +83,7 @@ impl MancalaBoard {
     }
 
     /// Clears the selected dish and returns it's contents
-    pub fn clear_dish(&mut self, index: usize) -> u32 {
+    pub fn clear_dish(&mut self, index: usize) -> usize {
         let dish = self.values[index];
         self.values[index] = 0;
         dish
