@@ -19,10 +19,10 @@ pub enum Side {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum MoveResult {
+    Done(usize),
     Capture(usize),
     ExtraTurn,
     IllegalMove,
-    Done,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -76,10 +76,20 @@ impl MancalaBoard {
         );
     }
 
+    /// Flips the board
     pub fn flip(&mut self) {
         for i in 0..7 {
             self.values.swap(i, i + 7)
         }
+    }
+
+    /// Returns a flipped version of the board
+    pub fn flipped(&self) -> Self {
+        let mut board = *self;
+        for i in 0..7 {
+            board.values.swap(i, i + 7)
+        }
+        board
     }
 
     /// Clears the selected dish and returns it's contents
@@ -112,8 +122,11 @@ impl MancalaBoard {
             let current_index = (index + offset) % 14;
 
             if !(current_index == 0 && side == Side::Left || current_index == 7 && side == Side::Right) {
-                self.values[current_index] += 1;
-                hand -= 1;
+                let size = self.values.len() - 1; // all slots except other player's bank
+
+                let multiple_seeds = if hand >= size { hand / (self.values.len() - 1) } else { 1 };
+                self.values[current_index] += multiple_seeds;
+                hand -= multiple_seeds;
             }
 
             if hand == 0 {
@@ -134,7 +147,7 @@ impl MancalaBoard {
             offset += 1;
         }
 
-        MoveResult::Done
+        MoveResult::Done((index + offset - 1) % 14)
     }
 
     /// Captures the selected and the opposing dish, and places them in the selected side
@@ -179,12 +192,15 @@ impl MancalaBoard {
     }
 
     #[inline]
-    pub fn winner(&mut self) -> Winner {
+    pub fn winner(&self) -> Winner {
+        let left = (1..=6).into_iter().map(|i| self.values[i]).sum::<usize>() + self.values[7];
+        let right = (8..=13).into_iter().map(|i| self.values[i]).sum::<usize>() + self.values[0];
+
         use std::cmp::Ordering::*;
 
-        match self.values[0].cmp(&self.values[7]) {
-            Less => Winner::Side(Side::Left),
-            Greater => Winner::Side(Side::Right),
+        match left.cmp(&right) {
+            Less => Winner::Side(Side::Right),
+            Greater => Winner::Side(Side::Left),
             Equal => Winner::Tie,
         }
     }
