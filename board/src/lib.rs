@@ -1,13 +1,17 @@
 #[cfg(test)]
 mod test;
 
+use std::ops::Not;
+
 #[deprecated(
     since = "0.1.2",
-    note = "Please use the MancalaBoard::default() instead"
+    note = "Please use the MancalaBoard::<6>::default() instead"
 )]
-pub fn basic_board() -> MancalaBoard {
+pub fn basic_board() -> MancalaBoard<6> {
     MancalaBoard {
-        values: [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
+        left: [4; 6],
+        right: [4; 6],
+        ..Default::default()
     }
 }
 
@@ -17,10 +21,20 @@ pub enum Side {
     Right,
 }
 
+impl Not for Side {
+    type Output = Self;
+    fn not(self) -> Self::Output {
+        match self {
+            Side::Left => Side::Right,
+            Side::Right => Side::Left,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum MoveResult {
-    Done(usize),
-    Capture(usize),
+    Done(Side, usize),
+    Capture(Side, usize),
     ExtraTurn,
     IllegalMove,
 }
@@ -31,159 +45,193 @@ pub enum Winner {
     Tie,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
-pub struct MancalaBoard {
-    pub values: [usize; 14],
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub struct MancalaBoard<const S: usize> {
+    pub left: [usize; S],
+    pub left_bank: usize,
+    pub right: [usize; S],
+    pub right_bank: usize,
 }
 
-impl MancalaBoard {
-    pub fn new(initial: usize) -> Self {
-        Self { values: [
-            0,
-            initial, initial, initial,
-            initial, initial, initial, 
-            0,
-            initial, initial, initial,
-            initial, initial, initial, 
-        ]}
+impl<const S: usize> Default for MancalaBoard<S> {
+    fn default() -> Self {
+        Self {
+            left: [4; S],
+            right: [4; S],
+            left_bank: 0,
+            right_bank: 0,
+        }
     }
+}
 
-    pub fn default() -> Self {
-        Self::new(4)
-    }
-
-    pub fn from_position(values: [usize; 14]) -> Self {
-        Self { values }
+impl<const S: usize> MancalaBoard<S> {
+    pub fn new(initial: usize) -> MancalaBoard<S> {
+        Self {
+            left: [initial; S],
+            right: [initial; S],
+            ..Default::default()
+        }
     }
 
     pub fn print(&self) {
         println!(
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
-            self.values[0]
+            self.right_bank,
         );
-        for index in 1..7 {
+        for index in 0..S {
             println!(" ____  |  ____");
             println!(
                 "( {:2} ) | ( {:2} )",
-                self.values[index],
-                self.values[14 - index]
+                self.left[index],
+                self.right[self.opposite_dish_index(index)],
             );
             println!(" ‾‾‾‾  |  ‾‾‾‾");
         }
         println!(
             " _____________\n(     {:2}      )\n ‾‾‾‾‾‾‾‾‾‾‾‾‾",
-            self.values[7]
+            self.left_bank,
         );
     }
 
     /// Flips the board
     pub fn flip(&mut self) {
-        for i in 0..7 {
-            self.values.swap(i, i + 7)
+        // swap banks
+        (self.left_bank, self.right_bank) = (self.right_bank, self.left_bank);
+
+        for i in 0..S {
+            // swap dishes
+            (self.left[i], self.right[i]) = (self.right[i], self.left[i]);
         }
     }
 
     /// Returns a flipped version of the board
     pub fn flipped(&self) -> Self {
         let mut board = *self;
-        for i in 0..7 {
-            board.values.swap(i, i + 7)
-        }
+        board.flip();
         board
     }
 
+    #[inline]
     /// Clears the selected dish and returns it's contents
-    pub fn clear_dish(&mut self, index: usize) -> usize {
-        let dish = self.values[index];
-        self.values[index] = 0;
-        dish
+    pub fn clear_dish(&mut self, side: Side, index: usize) -> usize {
+        macro_rules! clear_dish {
+            ($side:expr) => {
+                {
+                    let dish = $side[index];
+                    $side[index] = 0;
+                    dish
+                }
+            };
+        }
+        match side {
+            Side::Left => clear_dish!(self.left),
+            Side::Right => clear_dish!(self.right),
+        }
     }
 
-    // Fixes indexing for a specific side, so you can always input between 0 and 6
-    pub fn move_from_side(&mut self, index: usize, side: Side) -> MoveResult {
-        let offset = match side {
-            Side::Left => 0,
-            Side::Right => 7,
-        };
-        self.move_piece(index + offset, side)
-    }
-
-    /// Moves the selected dish into the hand moves them in anti-clockwise direction (by incrementing index).
-    pub fn move_piece(&mut self, index: usize, side: Side) -> MoveResult {
-        if !self.is_move_legal(index) {
+    /// Allows you to move an arbitrary dish on the board while it getting collected by an arbitrary player.
+    /// Optiomal for avalache implementations. 
+    pub fn move_from_side(&mut self, dish_side: Side, dish_index: usize, collector_side: Side) -> MoveResult {
+        if !self.is_move_legal(dish_side, dish_index) {
             return MoveResult::IllegalMove
         }
 
-        let mut hand = self.clear_dish(index);
+        let mut hand = self.clear_dish(dish_side, dish_index);
+        let mut current_index = dish_index + 1;
+        let mut current_side = dish_side;
 
-        let mut offset = 1;
+        loop {
+            macro_rules! check_bank {
+                ($bank:expr) => {
+                    {
+                        if current_side == collector_side {
+                            $bank += 1;
+                            hand -= 1;
+                            if hand == 0 {
+                                break MoveResult::ExtraTurn;
+                            }
+                        }
+                        current_side = !current_side;
+                        current_index = 0;
+                    }
+                };
+            }
 
-        while hand > 0 {
-            let current_index = (index + offset) % 14;
+            macro_rules! check_dish {
+                ($dishes:expr) => {
+                    {
+                        $dishes[current_index] += 1;
+                        hand -= 1;
+                        if hand == 0 {
+                            if
+                                current_side == collector_side && // if it's your side
+                                $dishes[current_index] == 1 && // if it was previously empty
+                                self.side_to_dishes(!collector_side)[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
+                            {
+                                break MoveResult::Capture(current_side, current_index)
+                            }
+                        }
+                        current_index += 1;
+                    }
+                };
+            }
 
-            if !(current_index == 0 && side == Side::Left || current_index == 7 && side == Side::Right) {
-                let size = self.values.len() - 1; // all slots except other player's bank
-
-                let multiple_seeds = if hand >= size { hand / (self.values.len() - 1) } else { 1 };
-                self.values[current_index] += multiple_seeds;
-                hand -= multiple_seeds;
+            match current_side {
+                Side::Left if current_index >= S => check_bank!(self.left_bank),
+                Side::Right if current_index >= S => check_bank!(self.right_bank),
+                Side::Left => check_dish!(self.left),
+                Side::Right => check_dish!(self.right),
             }
 
             if hand == 0 {
-                if 
-                    ![0, 7].contains(&current_index) // if it isn't the bank
-                    && self.values[current_index] == 1 // if it was previously empty
-                    && self.index_side(current_index) == side // if the side is yours
-                    && self.values[self.opposite_dish_index(current_index)] > 0 // if the other side has something
-                {
-                    return MoveResult::Capture(current_index)
-                }
-                
-                if current_index == 0 && side == Side::Right || current_index == 7 && side == Side::Left {
-                    return MoveResult::ExtraTurn
-                }
+                break MoveResult::Done(current_side, current_index - 1); // underflow is unreachable
             }
-
-            offset += 1;
         }
+    }
 
-        MoveResult::Done((index + offset - 1) % 14)
+    /// Moves the selected dish into the hand moves them in anti-clockwise direction.
+    pub fn move_piece(&mut self, side: Side, index: usize) -> MoveResult {
+        self.move_from_side(side, index, side)
     }
 
     /// Captures the selected and the opposing dish, and places them in the selected side
-    pub fn capture(&mut self, index: usize, side: Side) {
+    pub fn capture(&mut self, side: Side, index: usize) {
         let other_side_index = self.opposite_dish_index(index);
-
-        if [0, 7].contains(&index) { return }
-
-        let bank_index = match side {
-            Side::Left => 7,
-            Side::Right => 0,
-        };
-        
-        self.values[bank_index] += self.clear_dish(index) + self.clear_dish(other_side_index);
+        let current_side = self.clear_dish(side, index);
+        let other_side = self.clear_dish(!side, other_side_index);
+        let bank = self.side_bank(side);
+        *bank += current_side + other_side;
     }
 
     /// Collects all the dishes and places them in their respective side's bank.
     pub fn collect_dishes(&mut self) {
-        for i in 1..7 { // left side
-            self.values[7] += self.clear_dish(i);
-        }
-        for i in 8..14 { // right side
-            self.values[0] += self.clear_dish(i);
-        }
+        self.left_bank += self.left.iter().sum::<usize>();
+        self.left = [0; S];
+        self.right_bank += self.right.iter().sum::<usize>();
+        self.right = [0; S];
     }
 
     /// Checks if the side is empty
+    #[inline]
     pub fn is_side_empty(&self, side: Side) -> bool {
-        let slice = match side {
-            Side::Left => 1..7,
-            Side::Right => 8..14,
-        };
+        let side_dishes = self.side_to_dishes(side).as_ref();
+        side_dishes.iter().all(|d| d == &0)
+    }
 
-        self.values[slice]
-            .iter()
-            .all(|&quantity| quantity == 0)
+    #[inline]
+    pub fn side_to_dishes(&self, side: Side) -> &[usize; S] {
+        match side {
+            Side::Left => &self.left,
+            Side::Right => &self.right,
+        }
+    }
+
+    #[inline]
+    pub fn side_bank(&mut self, side: Side) -> &mut usize {
+        match side {
+            Side::Left => &mut self.left_bank,
+            Side::Right => &mut self.right_bank,
+        }
     }
 
     #[inline]
@@ -193,32 +241,24 @@ impl MancalaBoard {
 
     #[inline]
     pub fn winner(&self) -> Winner {
-        let left = (1..=6).into_iter().map(|i| self.values[i]).sum::<usize>() + self.values[7];
-        let right = (8..=13).into_iter().map(|i| self.values[i]).sum::<usize>() + self.values[0];
+        let left = self.left.iter().sum::<usize>() + self.left_bank;
+        let right = self.right.iter().sum::<usize>() + self.right_bank;
 
         use std::cmp::Ordering::*;
-
         match left.cmp(&right) {
-            Less => Winner::Side(Side::Right),
             Greater => Winner::Side(Side::Left),
             Equal => Winner::Tie,
+            Less => Winner::Side(Side::Right),
         }
     }
 
     #[inline]
-    pub fn is_move_legal(&self, index: usize) -> bool {
-        ![0, 7].contains(&index) && self.values[index] > 0
+    pub fn is_move_legal(&mut self, side: Side, index: usize) -> bool {
+        (0..S).contains(&index) && self.side_to_dishes(side)[index] > 0
     }
-    #[inline]
-    pub fn index_side(&self, index: usize) -> Side {
-        if (1..=7).contains(&index) {
-            Side::Left
-        } else {
-            Side::Right
-        }
-    }
+
     #[inline]
     pub fn opposite_dish_index(&self, index: usize) -> usize {
-        14 - index
+        S - 1 - index
     }
 }
