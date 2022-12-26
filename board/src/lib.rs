@@ -136,17 +136,30 @@ impl<const S: usize> MancalaBoard<S> {
             return MoveResult::IllegalMove
         }
 
+        let placeable_slots = 2 * S + 1;
+
         let mut hand = self.clear_dish(dish_side, dish_index);
         let mut current_index = dish_index + 1;
         let mut current_side = dish_side;
 
         loop {
+            macro_rules! calculate_bulk {
+                () => {
+                    if hand >= 2 * placeable_slots { // only run division if you're sure that there's more than 1 value
+                        hand / placeable_slots
+                    } else {
+                        1
+                    }
+                };
+            }
+
             macro_rules! check_bank {
                 ($bank:expr) => {
                     {
                         if current_side == collector_side {
-                            $bank += 1;
-                            hand -= 1;
+                            let bulk = calculate_bulk!();
+                            $bank += bulk;
+                            hand -= bulk;
                             if hand == 0 {
                                 break MoveResult::ExtraTurn;
                             }
@@ -160,8 +173,9 @@ impl<const S: usize> MancalaBoard<S> {
             macro_rules! check_dish {
                 ($dishes:expr) => {
                     {
-                        $dishes[current_index] += 1;
-                        hand -= 1;
+                        let bulk = calculate_bulk!();
+                        $dishes[current_index] += bulk;
+                        hand -= bulk;
                         if hand == 0 {
                             if
                                 current_side == collector_side && // if it's your side
@@ -189,7 +203,7 @@ impl<const S: usize> MancalaBoard<S> {
         }
     }
 
-    /// Moves the selected dish into the hand moves them in anti-clockwise direction.
+    /// Moves the selected dish into the hand and moves them in an anti-clockwise direction.
     pub fn move_piece(&mut self, side: Side, index: usize) -> MoveResult {
         self.move_from_side(side, index, side)
     }
