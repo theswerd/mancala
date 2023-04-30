@@ -1,38 +1,40 @@
 # Mancala Board
 
 ## Features
+
 - [x] Print board
-- [x] Calculate moves with avalanche
+- [x] Calculate moves without avalanche
 - [x] Detect game over
 - [x] Detect winner
 - [x] Generate basic board
+- [x] Arbitrary board size (const)
 - [ ] Generate random board
-- [ ] Calculate moves without avalanche
+- [ ] Calculate moves with avalanche
 
 ```output
 Board structure:
  _____________
-(      0      )
+(      RB     )
  ‾‾‾‾‾‾‾‾‾‾‾‾‾
  ____  |  ____
-(  1 ) | ( 13 )
+( L1 ) | ( R6 )
  ‾‾‾‾  |  ‾‾‾‾
  ____  |  ____
-(  2 ) | ( 12 )
+( L2 ) | ( R5 )
  ‾‾‾‾  |  ‾‾‾‾
  ____  |  ____
-(  3 ) | ( 11 )
+( L3 ) | ( R4 )
  ‾‾‾‾  |  ‾‾‾‾
  ____  |  ____
-(  4 ) | ( 10 )
+( L4 ) | ( R3 )
  ‾‾‾‾  |  ‾‾‾‾
  ____  |  ____
-(  5 ) | (  9 )
+( L5 ) | ( R2 )
  ‾‾‾‾  |  ‾‾‾‾
  ____  |  ____
-(  6 ) | (  8 )
+( L6 ) | ( R1 )
  ‾‾‾‾  |  ‾‾‾‾
  _____________
-(      7      )
+(     LB      )
  ‾‾‾‾‾‾‾‾‾‾‾‾‾
 ```
