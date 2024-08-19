@@ -9,7 +9,7 @@ fn sample_oware_game() {
 
         (expect [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]),
 
-        (move o 5 Left => Done(Right, 3)),
+        (move o 5 Left) => Done(Right, 3),
         (expect [0, 4, 4, 4, 4, 4, 0, 0, 5, 5, 5, 5, 4, 4]),
 
         // (move o 5 Right => Done(Left, 4)),
@@ -24,11 +24,11 @@ fn oware_collect_test() {
 
         (expect [0, 3*12,0,0,0,0,0, 0, 0,0,0,0,0,0]),
 
-        (move o 0 Left => Done(Left, 5)),
+        (move o 0 Left) => Done(Left, 0),
         (expect [0, 3,3,3,3,3,3, 0, 3,3,3,3,3,3]),
 
-        (oware collect 0 Right [Left] => 48),
-        (expect [0, 0,0,0,0,0,0, 48, 0,0,0,0,0,0]),
+        (oware collect 0 Right [Left]) => 36,
+        (expect [0, 0,0,0,0,0,0, 36, 0,0,0,0,0,0]),
         // (move o 5 Right => Done(Left, 4)),
         // (expect [0, 4, 4, 4, 4, 4, 0, 0, 5, 5, 5, 5, 4, 4]),
     );

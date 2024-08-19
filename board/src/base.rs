@@ -14,67 +14,68 @@ impl<const S: usize> MancalaBoard<S> {
         let mut current_index = dish_index + 1;
         let mut current_side = dish_side;
 
-        loop {
-            macro_rules! calculate_bulk {
-                () => {
-                    if hand >= 2 * placeable_slots { // only run division if you're sure that there's more than 1 value
-                        hand / placeable_slots
-                    } else {
-                        1
-                    }
-                };
-            }
+        macro_rules! calculate_bulk {
+            () => {
+                // // THERE'S SOME BUG WITH THIS
+                // if hand >= placeable_slots { // only run division if you're sure that there's more than 1 value
+                //     hand / placeable_slots
+                // } else {
+                    1
+                // }
+            };
+        }
 
-            macro_rules! check_current_side {
-                () => {
-                    match collector_side {
-                        BankCollector::None => false,
-                        BankCollector::Side(side) => current_side == side,
-                        BankCollector::Both => true,
-                    }
-                };
-            }
+        macro_rules! check_current_side {
+            () => {
+                match collector_side {
+                    BankCollector::None => false,
+                    BankCollector::Side(side) => current_side == side,
+                    BankCollector::Both => true,
+                }
+            };
+        }
 
-            macro_rules! check_bank {
-                ($bank:expr) => {
-                    {
-                        if check_current_side!() {
-                            let bulk = calculate_bulk!();
-                            $bank += bulk;
-                            hand -= bulk;
-                            if hand == 0 {
-                                break MoveResult::ExtraTurn;
-                            }
-                        }
-                        current_side = !current_side;
-                        current_index = 0;
-                    }
-                };
-            }
-
-            macro_rules! check_dish {
-                ($dishes:expr) => {
-                    {
+        macro_rules! check_bank {
+            ($bank:expr) => {
+                {
+                    if check_current_side!() {
                         let bulk = calculate_bulk!();
-                        $dishes[current_index] += bulk;
+                        $bank += bulk;
                         hand -= bulk;
                         if hand == 0 {
-                            if
-                                check_current_side!() && // if it's your side
-                                $dishes[current_index] == 1 && // if it was previously empty
-                                self.side_to_dishes(match collector_side {
-                                    BankCollector::Side(side) => side,
-                                    _ => unreachable!(),
-                                })[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
-                            {
-                                break MoveResult::Capture(current_side, current_index)
-                            }
+                            break MoveResult::ExtraTurn;
                         }
-                        current_index += 1;
                     }
-                };
-            }
+                    current_side = !current_side;
+                    current_index = 0;
+                }
+            };
+        }
 
+        macro_rules! check_dish {
+            ($dishes:expr) => {
+                {
+                    let bulk = calculate_bulk!();
+                    $dishes[current_index] += bulk;
+                    hand -= bulk;
+                    if hand == 0 {
+                        if
+                            check_current_side!() && // if it's your side
+                            $dishes[current_index] == 1 && // if it was previously empty
+                            self.side_to_dishes(match collector_side {
+                                BankCollector::Side(side) => side,
+                                _ => unreachable!(),
+                            })[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
+                        {
+                            break MoveResult::Capture(current_side, current_index)
+                        }
+                    }
+                    current_index += 1;
+                }
+            };
+        }
+
+        loop {
             match current_side {
                 Side::Left if current_index >= S => check_bank!(self.left_bank),
                 Side::Right if current_index >= S => check_bank!(self.right_bank),

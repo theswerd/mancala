@@ -44,7 +44,7 @@ fn main() {
                     }
                 },
                 MoveResult::Capture(s, i) => {
-                    if let Variant::Kalah = variant {
+                    if let Variant::Kalah = variant { // on oware, the "capture" is unreachable, but let's add this check just in case
                         board.capture_kalah(s, i);
                     }
                 },
