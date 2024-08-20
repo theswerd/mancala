@@ -8,7 +8,7 @@ impl<const S: usize> MancalaBoard<S> {
             return MoveResult::IllegalMove
         }
 
-        let placeable_slots = 2 * S + collector_side.quantity();
+        let _placeable_slots = 2 * S + collector_side.quantity();
 
         let mut hand = self.clear_dish(dish_side, dish_index);
         let mut current_index = dish_index + 1;
@@ -64,6 +64,7 @@ impl<const S: usize> MancalaBoard<S> {
                             $dishes[current_index] == 1 && // if it was previously empty
                             self.side_to_dishes(match collector_side {
                                 BankCollector::Side(side) => side,
+                                BankCollector::Both => current_side,
                                 _ => unreachable!(),
                             })[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
                         {

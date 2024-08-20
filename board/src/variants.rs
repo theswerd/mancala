@@ -1,4 +1,4 @@
-use crate::{BankCollector, MancalaBoard, MoveResult, Side};
+use crate::{BankCollector, MUInt, MancalaBoard, MoveResult, Side};
 
 impl<const S: usize> MancalaBoard<S> {
     /// Moves the selected dish into the hand and moves them in an anti-clockwise direction, while using the side's bank.
@@ -35,7 +35,7 @@ impl<const S: usize> MancalaBoard<S> {
 
     /// Collects all dishes that contain 2 or 3 pieces consecutively in a clockwise direction
     /// Returns the total amount of pieces collected
-    pub fn oware_collect(&mut self, mut side: Side, mut index: usize, collector_side: Side) -> usize {
+    pub fn oware_collect(&mut self, mut side: Side, mut index: usize, collector_side: Side) -> MUInt {
         let mut output = 0;
         loop {
             let dishes = self.side_to_dishes(side);

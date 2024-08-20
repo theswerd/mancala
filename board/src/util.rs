@@ -1,4 +1,4 @@
-use crate::{MancalaBoard, Side, Winner};
+use crate::{MUInt, MancalaBoard, Side, Winner};
 
 impl<const S: usize> MancalaBoard<S> {
     /// Flips the board
@@ -21,7 +21,7 @@ impl<const S: usize> MancalaBoard<S> {
 
     #[inline]
     /// Clears the selected dish and returns it's contents
-    pub fn clear_dish(&mut self, side: Side, index: usize) -> usize {
+    pub fn clear_dish(&mut self, side: Side, index: usize) -> MUInt {
         macro_rules! clear_dish {
             ($side:expr) => {
                 {
@@ -39,9 +39,9 @@ impl<const S: usize> MancalaBoard<S> {
 
     /// Collects all the dishes and places them in their respective side's bank.
     pub fn collect_dishes(&mut self) {
-        self.left_bank += self.left.iter().sum::<usize>();
+        self.left_bank += self.left.iter().sum::<MUInt>();
         self.left = [0; S];
-        self.right_bank += self.right.iter().sum::<usize>();
+        self.right_bank += self.right.iter().sum::<MUInt>();
         self.right = [0; S];
     }
 
@@ -53,14 +53,14 @@ impl<const S: usize> MancalaBoard<S> {
     }
 
     #[inline]
-    pub const fn side_to_dishes(&self, side: Side) -> &[usize; S] {
+    pub const fn side_to_dishes(&self, side: Side) -> &[MUInt; S] {
         match side {
             Side::Left => &self.left,
             Side::Right => &self.right,
         }
     }
 
-    pub fn side_to_dishes_mut(&mut self, side: Side) -> &mut [usize; S] {
+    pub fn side_to_dishes_mut(&mut self, side: Side) -> &mut [MUInt; S] {
         match side {
             Side::Left => &mut self.left,
             Side::Right => &mut self.right,
@@ -68,7 +68,7 @@ impl<const S: usize> MancalaBoard<S> {
     }
 
     #[inline]
-    pub fn side_bank(&mut self, side: Side) -> &mut usize {
+    pub fn side_bank(&mut self, side: Side) -> &mut MUInt {
         match side {
             Side::Left => &mut self.left_bank,
             Side::Right => &mut self.right_bank,
@@ -82,8 +82,8 @@ impl<const S: usize> MancalaBoard<S> {
 
     #[inline]
     pub fn winner(&self) -> Winner {
-        let left = self.left.iter().sum::<usize>() + self.left_bank;
-        let right = self.right.iter().sum::<usize>() + self.right_bank;
+        let left = self.left.iter().sum::<MUInt>() + self.left_bank;
+        let right = self.right.iter().sum::<MUInt>() + self.right_bank;
 
         use core::cmp::Ordering::*;
         match left.cmp(&right) {

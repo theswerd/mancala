@@ -9,6 +9,8 @@ mod test;
 
 use core::ops::Not;
 
+pub type MUInt = u32;
+
 #[deprecated(
     since = "0.1.2",
     note = "Please use the MancalaBoard::<6>::default() instead"
@@ -70,10 +72,10 @@ impl BankCollector {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 pub struct MancalaBoard<const S: usize> {
-    pub left: [usize; S],
-    pub left_bank: usize,
-    pub right: [usize; S],
-    pub right_bank: usize,
+    pub left: [MUInt; S],
+    pub left_bank: MUInt,
+    pub right: [MUInt; S],
+    pub right_bank: MUInt,
 }
 
 impl<const S: usize> Default for MancalaBoard<S> {
@@ -88,7 +90,7 @@ impl<const S: usize> Default for MancalaBoard<S> {
 }
 
 impl<const S: usize> MancalaBoard<S> {
-    pub const fn new(initial: usize) -> MancalaBoard<S> {
+    pub const fn new(initial: MUInt) -> MancalaBoard<S> {
         Self {
             left: [initial; S],
             right: [initial; S],
@@ -97,7 +99,7 @@ impl<const S: usize> MancalaBoard<S> {
         }
     }
 
-    pub const fn from_side(initial: [usize; S]) -> MancalaBoard<S> {
+    pub const fn from_side(initial: [MUInt; S]) -> MancalaBoard<S> {
         Self {
             left: initial,
             right: initial,
@@ -106,7 +108,7 @@ impl<const S: usize> MancalaBoard<S> {
         }
     }
 
-    pub const fn from_sides(left: [usize; S], right: [usize; S]) -> MancalaBoard<S> {
+    pub const fn from_sides(left: [MUInt; S], right: [MUInt; S]) -> MancalaBoard<S> {
         Self {
             left,
             right,
