@@ -1,4 +1,4 @@
-use crate::{MancalaBoard, MoveResult, Side, BankCollector};
+use crate::{BankCollector, MUInt, MancalaBoard, MoveResult, Side};
 
 impl<const S: usize> MancalaBoard<S> {
     /// Allows you to move an arbitrary dish on the board while it getting collected by an arbitrary player.
@@ -8,21 +8,19 @@ impl<const S: usize> MancalaBoard<S> {
             return MoveResult::IllegalMove
         }
 
-        let _placeable_slots = 2 * S + collector_side.quantity();
+        let placeable_slots = (2 * S + collector_side.quantity()) as MUInt;
 
-        let mut hand = self.clear_dish(dish_side, dish_index);
+        let initial_hand = self.clear_dish(dish_side, dish_index);
+        let mut hand = initial_hand;
         let mut current_index = dish_index + 1;
         let mut current_side = dish_side;
+        let mut index = 0;
 
         macro_rules! calculate_bulk {
-            () => {
-                // // THERE'S SOME BUG WITH THIS
-                // if hand >= placeable_slots { // only run division if you're sure that there's more than 1 value
-                //     hand / placeable_slots
-                // } else {
-                    1
-                // }
-            };
+            () => {{
+                index += 1;
+                (initial_hand + (placeable_slots - index)) / placeable_slots
+            }};
         }
 
         macro_rules! check_current_side {
