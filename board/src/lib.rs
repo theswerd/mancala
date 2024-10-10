@@ -70,6 +70,12 @@ impl BankCollector {
     }
 }
 
+impl From<Side> for BankCollector {
+    fn from(value: Side) -> Self {
+        BankCollector::Side(value)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 pub struct MancalaBoard<const S: usize> {
     pub left: [MUInt; S],
@@ -97,6 +103,10 @@ impl<const S: usize> MancalaBoard<S> {
             left_bank: 0,
             right_bank: 0,
         }
+    }
+
+    pub const fn len(&self) -> usize {
+        S
     }
 
     pub const fn from_side(initial: [MUInt; S]) -> MancalaBoard<S> {

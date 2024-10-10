@@ -12,7 +12,8 @@ impl<const S: usize> MancalaBoard<S> {
     }
 
     /// Moves the selected dish into the hand and moves them in an anti-clockwise direction, if it ends on a non-empty dish it will repeat.
-    pub fn move_piece_avalache(&mut self, mut side: Side, mut index: usize, bank_collector: BankCollector) -> MoveResult {
+    pub fn move_piece_avalache(&mut self, mut side: Side, mut index: usize, bank_collector: impl Into<BankCollector>) -> MoveResult {
+        let bank_collector = bank_collector.into();
         loop {
             let current_move = self.move_from_side(side, index, bank_collector);
             match current_move {

@@ -3,11 +3,12 @@ use crate::{BankCollector, MUInt, MancalaBoard, MoveResult, Side};
 impl<const S: usize> MancalaBoard<S> {
     /// Allows you to move an arbitrary dish on the board while it getting collected by an arbitrary player.
     /// Optimal for avalache and puzzle implementations.
-    pub fn move_from_side(&mut self, dish_side: Side, dish_index: usize, collector_side: BankCollector) -> MoveResult {
+    pub fn move_from_side(&mut self, dish_side: Side, dish_index: usize, collector_side: impl Into<BankCollector>) -> MoveResult {
         if !self.is_move_legal(dish_side, dish_index) {
             return MoveResult::IllegalMove
         }
 
+        let collector_side = collector_side.into();
         let placeable_slots = (2 * S + collector_side.quantity()) as MUInt;
 
         let initial_hand = self.clear_dish(dish_side, dish_index);
@@ -61,8 +62,8 @@ impl<const S: usize> MancalaBoard<S> {
                             check_current_side!() && // if it's your side
                             $dishes[current_index] == 1 && // if it was previously empty
                             self.side_to_dishes(match collector_side {
-                                BankCollector::Side(side) => side,
-                                BankCollector::Both => current_side,
+                                BankCollector::Side(side) => !side, // 💀 found the bug
+                                BankCollector::Both => !current_side,
                                 _ => unreachable!(),
                             })[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
                         {

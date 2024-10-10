@@ -78,3 +78,28 @@ fn sample_kalah_game() {
         (winner Winner::Side(Right)),
     );
 }
+
+#[test]
+fn sample_kalah_game_2() {
+    full_game!(
+        board(6);
+        // found a bug, I have to track it down
+
+        (expect [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]),
+
+        (move k 5 Left) => Done(Right, 2),
+        (expect [0, 4, 4, 4, 4, 4, 0, 1, 5, 5, 5, 4, 4, 4]),
+        (move k 1 Right) => ExtraTurn,
+        (expect [1, 4, 4, 4, 4, 4, 0, 1, 5, 0, 6, 5, 5, 5]),
+        (move k 2 Right) => Done(Left, 1),
+        (expect [2, 5, 5, 4, 4, 4, 0, 1, 5, 0, 0, 6, 6, 6]),
+        (move k 0 Left) => Capture(Left, 5),
+        // ^why does this give Done(Left, 5) ://
+        // after 45 minutes, found the issue, instead of checking the opposite side, it was checking the current side with the opposite index
+        // all because I forgot an `!`
+        // BankCollector::Side(side) => !side
+        (expect [2, 0, 6, 5, 5, 5, 1, 1, 5, 0, 0, 6, 6, 6]),
+        (capture 5 Left),
+        (expect [2, 0, 6, 5, 5, 5, 0, 7, 0, 0, 0, 6, 6, 6]),
+    );
+}
