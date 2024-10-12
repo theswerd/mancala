@@ -1,4 +1,4 @@
-use crate::{MUInt, MancalaBoard, Side, Winner};
+use crate::{MUInt, MancalaBoard, MoveResult, Side, Winner};
 
 impl<const S: usize> MancalaBoard<S> {
     /// Flips the board
@@ -131,5 +131,16 @@ impl<const S: usize> MancalaBoard<S> {
         println!("┌──┐{}┌──┐", top);
         println!("│{:2}│{}│{:2}│", self.right_bank, " ".repeat(top.len()), self.left_bank);
         println!("└──┘{}└──┘", bottom);
+    }
+}
+
+impl MoveResult {
+    /// Returns if the playing side should be changed depending on the resulting move type (i.e. on `Capture`s and `Done`s)
+    #[inline]
+    pub fn change_side(&self) -> bool {
+        match self {
+            MoveResult::Capture(_, _)|MoveResult::Done(_, _) => true,
+            MoveResult::ExtraTurn|MoveResult::IllegalMove => false,
+        }
     }
 }

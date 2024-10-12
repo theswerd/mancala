@@ -25,3 +25,17 @@ fn bulk_calculation() {
         );
     }
 }
+
+#[test]
+fn capture() {
+    // this seems trivial, but I would have caught the bug in no time :/
+    // no idea how to write a good generated test for this
+    full_game!(
+        board(6) = [0,4,0,0,0,0] | [0,0,0,0,0,0];
+        (move k 1 Left) => Done(Left, 5),
+    );
+    full_game!(
+        board(6) = [0,4,0,0,0,0] | [1,0,0,0,0,0];
+        (move k 1 Left) => Capture(Left, 5),
+    );
+}

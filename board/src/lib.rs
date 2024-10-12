@@ -96,6 +96,9 @@ impl<const S: usize> Default for MancalaBoard<S> {
 }
 
 impl<const S: usize> MancalaBoard<S> {
+    pub const S: usize = S;
+
+    #[inline]
     pub const fn new(initial: MUInt) -> MancalaBoard<S> {
         Self {
             left: [initial; S],
@@ -105,10 +108,12 @@ impl<const S: usize> MancalaBoard<S> {
         }
     }
 
+    #[inline]
     pub const fn len(&self) -> usize {
         S
     }
 
+    #[inline]
     pub const fn from_side(initial: [MUInt; S]) -> MancalaBoard<S> {
         Self {
             left: initial,
@@ -118,6 +123,7 @@ impl<const S: usize> MancalaBoard<S> {
         }
     }
 
+    #[inline]
     pub const fn from_sides(left: [MUInt; S], right: [MUInt; S]) -> MancalaBoard<S> {
         Self {
             left,
