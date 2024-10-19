@@ -9,6 +9,6 @@ edition = "2021"
 mancala_board = { path = "../board" }
 rand = "0.8.5"
 term_grid = "0.2.0"
-rayon = "1.6.0"
-derive_more = "0.99.17"
-owo-colors = "3.5.0"
+rayon = "1.10.0"
+derive_more = { version = "1.0.0", features = ["full"] }
+owo-colors = "4.1.0"
