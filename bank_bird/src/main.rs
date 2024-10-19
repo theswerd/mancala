@@ -31,50 +31,16 @@ macro_rules! algs {
 fn main() {
     let algorithms: Vec<Box<dyn Algorithm<6>>> = algs![
         deterministic::First(),
-        // deterministic::Last(),
-        // deterministic::Smallest(false),
-        // deterministic::Smallest(true),
-        // deterministic::Biggest(false),
-        // deterministic::Biggest(true),
-        // deterministic::Pi(0),
-        // mix::CaptureAndExtraTurn(),
+        deterministic::Last(),
+        deterministic::Smallest(false),
+        deterministic::Smallest(true),
+        deterministic::Biggest(false),
+        deterministic::Biggest(true),
+        deterministic::Pi(0),
+        mix::CaptureAndExtraTurn(),
         // random::Random(),
 
-        // percentage is played against random (may be not accurate)
-        // bank_bird::BankBird1(1), // 62%
-        // bank_bird::BankBird1(2), // 34%
-        // bank_bird::BankBird1(3), // 66%
-        // bank_bird::BankBird1(4), // 62%
-        // bank_bird::BankBird1(5), // 70% (loses against 5 and 7)
-        // bank_bird::BankBird1(6), // 84% (ties 5, wins against 6 and 7)
-        bank_bird::BankBird1(7), // 76% (ties against 6, loses against 5 and 7)
-        // bank_bird::BankBird1(8), // 64%
-        // bank_bird::BankBird2(1),
-        bank_bird::BankBird2(2),
-        // bank_bird::BankBird2(3),
-        // bank_bird::BankBird2(4),
-        // bank_bird::BankBird2(5),
-        // bank_bird::BankBird2(6),
-        bank_bird::BankBird3(2),
-        // bank_bird::BankBird3(3),
-        // bank_bird::BankBird3(4),
-        // bank_bird::BankBird3(5),
-        // bank_bird::BankBird3(6),
-        // bank_bird::BankBird3(7),
-        // bank_bird::BankBird3(8),
-
-        // bank_bird::BankBird4(1),
-        // bank_bird::BankBird4(2),
-        // bank_bird::BankBird4(3),
-        // bank_bird::BankBird4(4),
-        // bank_bird::BankBird4(5),
-        // bank_bird::BankBird4(6),
-        // bank_bird::BankBird4(7),
-        // bank_bird::BankBird4(8),
-        // bank_bird::BankBird4(9),
-        bank_bird::BankBird4(10),
-        // bank_bird::BankBird4(11),
-        // bank_bird::BankBird4(12),
+        bank_bird::BankBird1(8),
     ];
 
     // (win, losses, tie)
