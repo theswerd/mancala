@@ -143,4 +143,10 @@ impl MoveResult {
             MoveResult::ExtraTurn|MoveResult::IllegalMove => false,
         }
     }
+
+    /// Returns true if the MoveResult is IllegalMove
+    #[inline]
+    pub fn is_illegal(&self) -> bool {
+        matches!(self, MoveResult::IllegalMove)
+    }
 }
