@@ -9,8 +9,9 @@ impl<const S: usize> Algorithm<S> for First {
     fn name(&self) -> String { "First".to_string() }
     fn min_games(&self) -> usize { 1 }
     fn play_move(&mut self, board: &MancalaBoard<S>, side: Side) -> usize {
+        let dishes = board.side_to_dishes(side);
         for i in 0..S {
-            if board.side_to_dishes(side)[i] > 0 { return i }
+            if dishes[i] > 0 { return i }
         }
         return 0;
     }

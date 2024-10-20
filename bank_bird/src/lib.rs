@@ -1,2 +1,2 @@
-pub mod algorithm;
+mod algorithm;
 pub use algorithm::*;

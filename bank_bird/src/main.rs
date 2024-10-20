@@ -1,6 +1,8 @@
 mod plot;
 
-use bank_bird::{ Algorithm, algorithm };
+use std::time::{Duration, Instant};
+
+use bank_bird::Algorithm;
 use mancala_board::{MancalaBoard, Side, MoveResult, Winner};
 
 #[derive(Clone, Copy, derive_more::Add, derive_more::Sum)]
@@ -9,6 +11,8 @@ struct GamesResults {
     draws: usize,
     losses: usize,
     games: usize,
+    left_time: Duration,
+    right_time: Duration,
 }
 
 #[allow(dead_code)]
@@ -22,7 +26,7 @@ macro_rules! algs {
     ($($m:ident::$al:ident $b:tt,)*) => {
         vec![
             $(
-                Box::new(algorithm::$m::$al $b),
+                Box::new(bank_bird::$m::$al $b),
             )*
         ]
     };
@@ -63,6 +67,8 @@ fn main() {
                 let mut draws = 0;
                 let mut losses = 0;
                 let mut games = 0;
+                let mut left_time = Duration::ZERO;
+                let mut right_time = Duration::ZERO;
 
                 for initial_board in INITIAL_BOARDS {
                     let mut board = MancalaBoard::from_side(*initial_board);
@@ -76,7 +82,15 @@ fn main() {
                         loop {
                             if board.game_over() { break }
 
+                            let start_time = Instant::now();
+                            
                             let move_index = current_turn.play_move(&board, side);
+                            
+                            let duration = start_time.elapsed();
+                            match side {
+                                Side::Left => left_time += duration,
+                                Side::Right => right_time += duration,
+                            }
 
                             let move_result = board.move_piece_kalah(side, move_index);
 
@@ -122,7 +136,14 @@ fn main() {
                     games += 1;
                 }
 
-                games_results.push(GamesResults { wins, draws, losses, games });
+                games_results.push(GamesResults {
+                    wins,
+                    draws,
+                    losses,
+                    games,
+                    left_time,
+                    right_time,
+                });
             }
 
             let games_result = games_results.into_iter().sum();

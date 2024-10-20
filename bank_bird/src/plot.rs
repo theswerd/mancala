@@ -59,18 +59,20 @@ pub fn bru<const S: usize>(results: Vec<AlgorithmBattle<S>>, algorithms: usize) 
 */
 
 pub fn draw_colors<const S: usize>(results: Vec<AlgorithmBattle<S>>, algorithms: usize) {
-    const CHARACTER: char = '▄'; // █
+    const CHARACTER: char = '█'; // █ ▄
+
     const WIDTH: usize = 80;
 
     let max = (0..algorithms).into_iter().map(|v| results[v].second.name().len()).max().unwrap();
 
     let mut stuff: Vec<(String, usize)> = (0..algorithms).into_iter().map(|algoritm| {
-        let as_first_games:  GamesResults = (0..algorithms).into_iter().map(|second| results[second * algorithms + algoritm].results).sum();
-        let as_second_games: GamesResults = (0..algorithms).into_iter().map(|first|  results[algoritm * algorithms + first] .results).sum();
+        let as_first_games: GamesResults = (0..algorithms).into_iter().map(|first|  results[algoritm * algorithms + first].results).sum();
+        let as_second_games:  GamesResults = (0..algorithms).into_iter().map(|second| results[second * algorithms + algoritm].results).sum();
 
         let complete = as_first_games + {
             let mut swapped = as_second_games;
             (swapped.wins, swapped.losses) = (as_second_games.losses, as_second_games.wins);
+            (swapped.left_time, swapped.right_time) = (as_second_games.right_time, as_second_games.left_time);
             swapped
         };
 
@@ -81,16 +83,19 @@ pub fn draw_colors<const S: usize>(results: Vec<AlgorithmBattle<S>>, algorithms:
         // let draws = ((complete.draws as f64 / complete.games as f64) * total_width as f64) as usize;
         let losses = ((complete.losses as f64 / complete.games as f64) * total_width as f64) as usize;
         let draws = total_width - (wins + losses);
+        let time = complete.left_time;
 
         let character = CHARACTER.to_string();
 
         (format!(
-            "{name}{} {}{}{} ({}/{}/{})",
+            "{name}{} {}{}{} ({}/{}/{}) [{} / {}]",
             " ".repeat(max - name.len()),
             character.repeat(wins).green(),
             character.repeat(draws).blue(),
             character.repeat(losses).red(),
             complete.wins.green(), complete.draws.blue(), complete.losses.red(),
+            format!("{:?}", time).bright_yellow(),
+            format!("{:?}", time / complete.games as u32).bright_yellow(),
         ), wins)
     }).collect();
 
