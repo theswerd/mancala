@@ -5,7 +5,7 @@ use std::time::{Duration, Instant};
 use bank_bird::Algorithm;
 use mancala_board::{MancalaBoard, Side, MoveResult, Winner};
 
-#[derive(Clone, Copy, derive_more::Add, derive_more::Sum)]
+#[derive(Default, Clone, Copy, derive_more::Add, derive_more::Sum)]
 struct GamesResults {
     wins: usize,
     draws: usize,
@@ -44,15 +44,27 @@ fn main() {
         mix::CaptureAndExtraTurn(),
         // random::Random(),
 
-        bank_bird::BankBird1(8),
+        bank_bird::BankBird1(7),
     ];
 
     // (win, losses, tie)
     let mut results = vec![];
 
     // Box<dyn> can't be shared between threads safely :/
-    for (_f, first) in algorithms.iter().enumerate() {
-        for (_s, second) in algorithms.iter().enumerate() {
+    for (f, first) in algorithms.iter().enumerate() {
+        for (s, second) in algorithms.iter().enumerate() {
+            if f == s {
+                // let's ignore the games where an algorithm plays against itself 💀
+                results.push(
+                    AlgorithmBattle {
+                        first: first.dyn_clone(),
+                        second: second.dyn_clone(),
+                        results: Default::default(),
+                    }
+                );
+                continue;
+            }
+
             let min_games = first.dyn_clone().min_games().max(second.min_games());
 
             let mut first = first.dyn_clone();
@@ -165,6 +177,12 @@ const INITIAL_BOARDS: &[[u32; 6]] = &[
     [2; 6],
     [3; 6],
     [4; 6],
+    [5; 6],
+    [6; 6],
+    [7; 6],
+    [8; 6],
+    [9; 6],
+    [10; 6],
     
     [1,2,3,4,5,6],
     [6,5,4,3,2,1],
@@ -181,7 +199,6 @@ const INITIAL_BOARDS: &[[u32; 6]] = &[
 
     [4,1,3,1,2,1],
 
-    [4,0,3,0,0,1],
-
-    [12,12,0,0,0,0],
+    [8,8,8,0,0,0],
+    [6,6,6,6,0,0],
 ];

@@ -12,7 +12,7 @@ impl<const S: usize> Algorithm<S> for BankBird1<S> {
     fn min_games(&self) -> usize { 1 }
     fn play_move(&mut self, board: &MancalaBoard<S>, side: Side) -> usize {
         fn recursive<const S: usize>(board: MancalaBoard<S>, side: Side, depth: usize, max_depth: usize) -> ArrayVec<Option<(usize, i32)>, S> {
-            if depth >= max_depth { return ArrayVec::from_iter([Some((0, calculate_score_v4(&board)))]) }
+            if depth >= max_depth { return ArrayVec::from_iter([Some((0, calculate_score_v1(&board)))]) }
             (0..S)
             .into_par_iter()
             .map(|i| {
@@ -24,7 +24,7 @@ impl<const S: usize> Algorithm<S> for BankBird1<S> {
                     _ => {}
                 }
                 if board.game_over() {
-                    return Some((i, calculate_score_v4(&board)))
+                    return Some((i, calculate_score_v1(&board)))
                 }
                 let next_side = if move_result.change_side() { !side } else { side };
                 select_best(recursive(board, next_side, depth + 1, max_depth), !next_side).map(|v| (i, v.1))
@@ -48,7 +48,7 @@ fn select_best<const S: usize>(results: ArrayVec<Option<(usize, i32)>, S>, side:
 // I tried a bit, and 3 seems to be the best multiplier
 const BANK_MULT: u32 = 3;
 
-fn calculate_score_v4<const S: usize>(board: &MancalaBoard<S>) -> i32 {
+fn calculate_score_v1<const S: usize>(board: &MancalaBoard<S>) -> i32 {
     let total_win_score = BANK_MULT as i32 * (S * 2 * 10) as i32;
 
     let win_score = if board.game_over() {
