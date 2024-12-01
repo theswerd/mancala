@@ -11,4 +11,15 @@ keywords = ["mancala", "game", "boardgame"]
 description = "A package with a minimal mancala board to play with."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+std = []
+
+[workspace]
+members = ["examples/*"]
+
+[[example]]
+name = "cli"
+required-features = ["std"]
+
 [dependencies]
