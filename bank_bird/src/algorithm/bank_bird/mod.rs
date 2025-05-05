@@ -9,4 +9,5 @@ macro_rules! import_and_extract {
 
 import_and_extract![
     bank_bird_1,
+    bank_bird_2,
 ];

@@ -44,7 +44,9 @@ fn main() {
         mix::CaptureAndExtraTurn(),
         // random::Random(),
 
-        bank_bird::BankBird1(7),
+        bank_bird::BankBird1(8),
+        bank_bird::BankBird2(8),
+        bank_bird::BankBird2(10),
     ];
 
     // (win, losses, tie)
