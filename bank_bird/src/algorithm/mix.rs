@@ -44,8 +44,8 @@ impl<const S: usize> Algorithm<S> for CaptureAndExtraTurn {
             return *extra_turns.last().unwrap()
         }
 
-        // pick the first move
-        for i in 0..S {
+        // pick the last move
+        for i in (0..S).rev() {
             if board.side_to_dishes(side)[i] > 0 { return i }
         }
 
