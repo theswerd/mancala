@@ -17,53 +17,38 @@ impl<const S: usize> MancalaBoard<S> {
         let mut current_side = dish_side;
         let mut index = 0;
 
-        macro_rules! check_bank {
-            ($bank:expr) => {
-                {
-                    if is_current_collecting_side(current_side, collector_side) {
-                        let bulk = calculate_bulk(&mut index, initial_hand, placeable_slots);
-                        $bank += bulk;
-                        hand -= bulk;
-                        if hand == 0 {
-                            break MoveResult::ExtraTurn;
-                        }
-                    }
-                    current_side = !current_side;
-                    current_index = 0;
-                }
-            };
-        }
-
-        macro_rules! check_dish {
-            ($dishes:expr) => {
-                {
+        loop {
+            if current_index >= S {
+                if is_current_collecting_side(current_side, collector_side) {
+                    let bank = self.side_bank(current_side);
                     let bulk = calculate_bulk(&mut index, initial_hand, placeable_slots);
-                    $dishes[current_index] += bulk;
+                    *bank += bulk;
                     hand -= bulk;
                     if hand == 0 {
-                        if
-                            is_current_collecting_side(current_side, collector_side) && // if it's your side
-                            $dishes[current_index] == 1 && // if it was previously empty
-                            self.side_to_dishes(match collector_side {
-                                BankCollector::Side(side) => !side, // 💀 found the bug
-                                BankCollector::Both => !current_side,
-                                _ => unreachable!(),
-                            })[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
-                        {
-                            break MoveResult::Capture(current_side, current_index)
-                        }
+                        break MoveResult::ExtraTurn;
                     }
-                    current_index += 1;
                 }
-            };
-        }
-
-        loop {
-            match current_side {
-                Side::Left if current_index >= S => check_bank!(self.left_bank),
-                Side::Right if current_index >= S => check_bank!(self.right_bank),
-                Side::Left => check_dish!(self.left),
-                Side::Right => check_dish!(self.right),
+                current_side = !current_side;
+                current_index = 0;
+            } else {
+                let dishes = self.side_to_dishes_mut(current_side);
+                let bulk = calculate_bulk(&mut index, initial_hand, placeable_slots);
+                dishes[current_index] += bulk;
+                hand -= bulk;
+                if hand == 0 {
+                    if
+                        is_current_collecting_side(current_side, collector_side) && // if it's your side
+                        dishes[current_index] == 1 && // if it was previously empty
+                        self.side_to_dishes(match collector_side {
+                            BankCollector::Side(side) => !side, // 💀 found the bug
+                            BankCollector::Both => !current_side,
+                            _ => unreachable!(),
+                        })[self.opposite_dish_index(current_index)] > 0 // if the other side has something in it
+                    {
+                        break MoveResult::Capture(current_side, current_index)
+                    }
+                }
+                current_index += 1;
             }
 
             if hand == 0 {
@@ -91,6 +76,7 @@ fn is_current_collecting_side(current_side: Side, collector_side: BankCollector)
     }
 }
 
+#[inline]
 fn calculate_bulk(index: &mut MUInt, initial_hand: MUInt, placeable_slots: MUInt) -> MUInt {
     *index += 1;
     (initial_hand + (placeable_slots - *index)) / placeable_slots
