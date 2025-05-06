@@ -4,6 +4,8 @@ mod base;
 mod util;
 mod variants;
 
+pub use variants::*;
+
 #[cfg(test)]
 mod test;
 
