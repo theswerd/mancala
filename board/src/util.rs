@@ -100,6 +100,7 @@ impl<const S: usize> MancalaBoard<S> {
 
     #[inline]
     pub const fn opposite_dish_index(&self, index: usize) -> usize {
+        // should I care about underflow?
         S - 1 - index
     }
 
@@ -137,7 +138,7 @@ impl<const S: usize> MancalaBoard<S> {
 impl MoveResult {
     /// Returns if the playing side should be changed depending on the resulting move type (i.e. on `Capture`s and `Done`s)
     #[inline]
-    pub fn change_side(&self) -> bool {
+    pub const fn change_side(&self) -> bool {
         match self {
             MoveResult::Capture(_, _)|MoveResult::Done(_, _) => true,
             MoveResult::ExtraTurn|MoveResult::IllegalMove => false,
@@ -146,7 +147,7 @@ impl MoveResult {
 
     /// Returns true if the MoveResult is IllegalMove
     #[inline]
-    pub fn is_illegal(&self) -> bool {
+    pub const fn is_illegal(&self) -> bool {
         matches!(self, MoveResult::IllegalMove)
     }
 }
