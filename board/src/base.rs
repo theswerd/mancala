@@ -24,20 +24,10 @@ impl<const S: usize> MancalaBoard<S> {
             }};
         }
 
-        macro_rules! check_current_side {
-            () => {
-                match collector_side {
-                    BankCollector::None => false,
-                    BankCollector::Side(side) => current_side == side,
-                    BankCollector::Both => true,
-                }
-            };
-        }
-
         macro_rules! check_bank {
             ($bank:expr) => {
                 {
-                    if check_current_side!() {
+                    if is_current_collecting_side(current_side, collector_side) {
                         let bulk = calculate_bulk!();
                         $bank += bulk;
                         hand -= bulk;
@@ -59,7 +49,7 @@ impl<const S: usize> MancalaBoard<S> {
                     hand -= bulk;
                     if hand == 0 {
                         if
-                            check_current_side!() && // if it's your side
+                            is_current_collecting_side(current_side, collector_side) && // if it's your side
                             $dishes[current_index] == 1 && // if it was previously empty
                             self.side_to_dishes(match collector_side {
                                 BankCollector::Side(side) => !side, // 💀 found the bug
@@ -96,5 +86,14 @@ impl<const S: usize> MancalaBoard<S> {
         let other_side = self.clear_dish(!dish_side, other_side_index);
         let bank = self.side_bank(collector_side);
         *bank += current_side + other_side;
+    }
+}
+
+#[inline]
+fn is_current_collecting_side(current_side: Side, collector_side: BankCollector) -> bool {
+    match collector_side {
+        BankCollector::None => false,
+        BankCollector::Side(side) => current_side == side,
+        BankCollector::Both => true,
     }
 }
