@@ -17,18 +17,11 @@ impl<const S: usize> MancalaBoard<S> {
         let mut current_side = dish_side;
         let mut index = 0;
 
-        macro_rules! calculate_bulk {
-            () => {{
-                index += 1;
-                (initial_hand + (placeable_slots - index)) / placeable_slots
-            }};
-        }
-
         macro_rules! check_bank {
             ($bank:expr) => {
                 {
                     if is_current_collecting_side(current_side, collector_side) {
-                        let bulk = calculate_bulk!();
+                        let bulk = calculate_bulk(&mut index, initial_hand, placeable_slots);
                         $bank += bulk;
                         hand -= bulk;
                         if hand == 0 {
@@ -44,7 +37,7 @@ impl<const S: usize> MancalaBoard<S> {
         macro_rules! check_dish {
             ($dishes:expr) => {
                 {
-                    let bulk = calculate_bulk!();
+                    let bulk = calculate_bulk(&mut index, initial_hand, placeable_slots);
                     $dishes[current_index] += bulk;
                     hand -= bulk;
                     if hand == 0 {
@@ -96,4 +89,9 @@ fn is_current_collecting_side(current_side: Side, collector_side: BankCollector)
         BankCollector::Side(side) => current_side == side,
         BankCollector::Both => true,
     }
+}
+
+fn calculate_bulk(index: &mut MUInt, initial_hand: MUInt, placeable_slots: MUInt) -> MUInt {
+    *index += 1;
+    (initial_hand + (placeable_slots - *index)) / placeable_slots
 }
