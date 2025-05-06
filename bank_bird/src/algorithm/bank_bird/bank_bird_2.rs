@@ -27,7 +27,7 @@ impl<const S: usize> BankBird2<S> {
     fn negamax(board: &MancalaBoard<S>, depth: usize, mut alpha: f64, beta: f64, side: Side) -> SearchResult {
         if depth == 0 || board.game_over() {
             return SearchResult {
-                score: calculate_score_v2(&board) as f64 * (if side == Side::Left { 1.0 } else { -1.0 }),
+                score: BankBird2::quiesce(board, 0, alpha, beta, side),
                 best_move: None
             }
         }
@@ -44,20 +44,50 @@ impl<const S: usize> BankBird2<S> {
             score_b.total_cmp(&score_a)
         });
 
+        let mut index = 0;
         for m in moves {
             let mut board = *board;
             
             let move_result = board.move_piece_kalah(side, m);
+            let mut reduce = false;
             match move_result {
                 MoveResult::Capture(cs, ci) => board.capture_kalah(cs, ci),
+                MoveResult::Done(_, _) => reduce = true,
                 _ => {},
             }
 
-            let result = if move_result.change_side() {
-                -BankBird2::negamax(&board, depth - 1, -beta, -alpha, !side).score
+            let mut reduced = false;
+
+            // LMR
+            let phase = BankBird2::calculate_phase(&board);
+            let new_depth = if index >= 4 && depth >= 3 && reduce {
+                reduced = true;
+                let r = if phase < 0.3 {
+                    (index / 4).min(2) as usize
+                } else if phase > 0.7 {
+                    (index / 6).min(1) as usize
+                } else {
+                    (index / 5).min(2) as usize
+                };
+
+                depth - 1 - r
             } else {
-                BankBird2::negamax(&board, depth - 1, alpha, beta, side).score
+                depth - 1
             };
+
+            let mut result = if move_result.change_side() {
+                -BankBird2::negamax(&board, new_depth, -beta, -alpha, !side).score
+            } else {
+                BankBird2::negamax(&board, new_depth, alpha, beta, side).score
+            };
+
+            if reduced && result > alpha {
+                result = if move_result.change_side() {
+                    -BankBird2::negamax(&board, depth - 1, -beta, -alpha, !side).score
+                } else {
+                    BankBird2::negamax(&board, depth - 1, alpha, beta, side).score
+                };
+            }
 
             if result > value {
                 value = result;
@@ -65,6 +95,8 @@ impl<const S: usize> BankBird2<S> {
             }
             
             alpha = alpha.max(value);
+
+            index += 1;
 
             if alpha >= beta {
                 break;
@@ -77,6 +109,85 @@ impl<const S: usize> BankBird2<S> {
         }
     }
 
+    fn quiesce(board: &MancalaBoard<S>, depth: i8, mut alpha: f64, beta: f64, side: Side) -> f64 {
+        let stand_pat = calculate_score_v2(&board) as f64 * (if side == Side::Left { 1.0 } else { -1.0 });
+
+        if depth == -10 {
+            return stand_pat;
+        }
+
+        if stand_pat >= beta {
+            return stand_pat;
+        }
+
+        if alpha < stand_pat {
+            alpha = stand_pat;
+        }
+
+        let mut value = stand_pat;
+        let moves = (0..S).into_iter()
+            .filter(|m| BankBird2::is_move_tactical(board, side, *m));
+
+        for m in moves {
+            let mut board = *board;
+            
+            let move_result = board.move_piece_kalah(side, m);
+            match move_result {
+                MoveResult::Capture(cs, ci) => board.capture_kalah(cs, ci),
+                _ => {},
+            }
+
+            let result = if move_result.change_side() {
+                -BankBird2::quiesce(&board, depth - 1, -beta, -alpha, !side)
+            } else {
+                BankBird2::quiesce(&board, depth - 1, alpha, beta, side)
+            };
+
+            if result >= beta {
+                return result;
+            }
+            if result > value {
+                value = result;
+            }
+            if result > alpha {
+                alpha = result;
+            }
+        }
+
+        value
+    }
+
+    fn is_move_tactical(board: &MancalaBoard<S>, side: Side, m: usize) -> bool {
+        if !board.is_move_legal(side, m) {
+            return false;
+        }
+
+        let stones = board.side_to_dishes(side)[m];
+        let landing = m + stones as usize;
+
+        if landing == S {
+            return true;
+        }
+
+        if landing < S && board.side_to_dishes(side)[landing] == 0 && board.side_to_dishes(!side)[board.opposite_dish_index(landing)] > 0 {
+            return true;
+        }
+
+        false
+    }
+
+    fn calculate_phase(board: &MancalaBoard<S>) -> f64 {
+        if board.game_over() {
+            return 0.0;
+        }
+
+        let slots = board.left.iter().sum::<u32>() + board.right.iter().sum::<u32>();
+        let banks = board.left_bank + board.right_bank;
+        let total = slots + banks;
+
+        1.0 - (slots as f64 / total as f64)
+    }
+
     fn score_move(board: &MancalaBoard<S>, m: usize, side: Side) -> f64 {
         let mut board = *board;
         let result = board.move_piece_kalah(side, m);
@@ -85,20 +196,16 @@ impl<const S: usize> BankBird2<S> {
         // they are very much arbitrary
         let value = match result {
             MoveResult::IllegalMove => -100.0,
-            MoveResult::ExtraTurn => 3.0,
+            MoveResult::ExtraTurn => 10.0,
             MoveResult::Done(_, _) => 0.0,
             MoveResult::Capture(cs, ci) => {
                 let current_side = board.side_to_dishes(cs)[ci];
                 let other_side = board.side_to_dishes(!cs)[board.opposite_dish_index(ci)];
-                (current_side as f64 + other_side as f64) * 0.75
+                current_side as f64 + other_side as f64
             }
         };
-
-        // i think its because of the calculate_v2 function
-        // it uses map
-
-        // oh its not used
-        value + VALUES[m] * 0.3
+        
+        value + VALUES[m]
     }
 }
 
@@ -151,13 +258,13 @@ fn calculate_score_v2<const S: usize>(board: &MancalaBoard<S>) -> f64 {
     } else { 0 };
 
     let left_side = board.left.iter()
-    .zip(VALUES.iter())
-    .map(|(&v, &pos_val)| pos_val * (v as f64))
-    .sum::<f64>() + board.left_bank as f64 * BANK_MULT as f64;
+        .zip(VALUES.iter())
+        .map(|(&v, &pos_val)| pos_val * 1.5 * (v as f64))
+        .sum::<f64>() + board.left_bank as f64 * BANK_MULT as f64;
 
     let right_side = board.right.iter()
         .zip(VALUES.iter())
-        .map(|(&v, &pos_val)| pos_val * (v as f64))
+        .map(|(&v, &pos_val)| pos_val * 1.5 * (v as f64))
         .sum::<f64>() + board.right_bank as f64 * BANK_MULT as f64;
 
     win_score as f64
