@@ -46,7 +46,7 @@ impl MancalaGui {
     fn draw_side(&mut self, ui: &mut Ui, disable_mode: DisableButtonsMode, side: Side) {
         let enabled = match disable_mode {
             DisableButtonsMode::Enable => true,
-            DisableButtonsMode::AutoDisable => self.side == side && matches!(self.get_player(self.side), PlayerKind::Human),
+            DisableButtonsMode::AutoDisable => self.side == side && matches!(*self.get_player(self.side).lock(), PlayerKind::Human),
             DisableButtonsMode::Disable => false,
         };
         empty_space(ui);

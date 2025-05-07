@@ -1,9 +1,7 @@
-use std::sync::Arc;
-
-use eframe::{egui::{mutex::Mutex, CentralPanel, Context}, App, Frame, NativeOptions};
+use eframe::{egui::{CentralPanel, Context}, App, Frame, NativeOptions};
 use mancala_board::{MancalaBoard, Side};
 
-use crate::{BotState, MancalaGui, PlayerKind, State, APP_NAME, BOARD_SIZE};
+use crate::{MancalaGui, PlayerKind, State, APP_NAME, BOARD_SIZE};
 
 mod display;
 mod board;
@@ -30,18 +28,8 @@ impl MancalaGui {
                 Box::new(Self {
                     board,
                     state: State::Playing,
-                    left: PlayerKind::Human,
-                    right: PlayerKind::Bot(
-                        Arc::new(
-                            Mutex::new(
-                                Box::new(bank_bird::bank_bird::BankBird1(10))
-                            )
-                        )
-                    ),
                     side: Side::Left,
                     moves_history: vec![],
-                    bot_state_left: BotState::Nothing,
-                    bot_state_right: BotState::Nothing,
                 })
             )),
         )

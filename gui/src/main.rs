@@ -1,7 +1,10 @@
-use std::sync::Arc;
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+use std::{sync::Arc, thread::JoinHandle};
 
 use bank_bird::Algorithm;
 use eframe::{egui::mutex::Mutex, HardwareAcceleration, NativeOptions};
+use lazy_static::lazy_static;
 use mancala_board::{MancalaBoard, Side};
 
 mod game;
@@ -11,7 +14,7 @@ pub const APP_NAME: &str = "Mancala GUI";
 pub const BOARD_SIZE: usize = 6;
 
 fn main() -> Result<(), eframe::Error> {
-    let board = MancalaBoard::<6>::new(4);
+    let board = MancalaBoard::<BOARD_SIZE>::new(4);
 
     let options = NativeOptions {
         hardware_acceleration: HardwareAcceleration::Preferred,
@@ -27,17 +30,13 @@ fn main() -> Result<(), eframe::Error> {
 pub struct MancalaGui {
     board: MancalaBoard<BOARD_SIZE>,
     state: State,
-    left: PlayerKind,
-    right: PlayerKind,
     side: Side,
     moves_history: Vec<(Side, usize)>,
-    bot_state_left: BotState,
-    bot_state_right: BotState,
 }
 
-pub enum PlayerKind {
-    Human,
-    Bot(Arc<Mutex<Box<dyn bank_bird::Algorithm<BOARD_SIZE> + Send>>>),
+lazy_static!{
+    static ref LEFT_PLAYER: Arc<Mutex<PlayerKind>> = Arc::new(Mutex::new(PlayerKind::Human));
+    static ref RIGHT_PLAYER: Arc<Mutex<PlayerKind>> = Arc::new(Mutex::new(PlayerKind::Bot(Box::new(bank_bird::bank_bird::BankBird2(18)), BotState::Ready)));
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -47,8 +46,13 @@ pub enum State {
     Finished,
 }
 
+pub enum PlayerKind {
+    Human,
+    Bot(Box<dyn Algorithm<BOARD_SIZE>>, BotState),
+}
+
 pub enum BotState {
-    Nothing,
-    Calculating,
+    Ready,
+    Calculating(JoinHandle<usize>),
     Play(usize),
 }
