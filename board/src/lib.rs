@@ -61,7 +61,7 @@ pub enum BankCollector {
 }
 
 impl BankCollector {
-    pub fn quantity(&self) -> usize {
+    pub const fn quantity(&self) -> usize {
         match self {
             BankCollector::Both => 2,
             BankCollector::Side(_) => 1,

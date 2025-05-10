@@ -1,7 +1,7 @@
-use std::u32::MAX;
+const MAX: MUInt = MUInt::MAX;
 
 use super::Algorithm;
-use mancala_board::{MancalaBoard, Side};
+use mancala_board::{MUInt, MancalaBoard, Side};
 
 #[derive(Debug, Clone, Copy)]
 pub struct First();

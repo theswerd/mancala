@@ -1,6 +1,6 @@
 use super::Algorithm;
 use arrayvec::ArrayVec;
-use mancala_board::{MancalaBoard, Side, MoveResult};
+use mancala_board::{MUInt, MancalaBoard, MoveResult, Side};
 
 #[derive(Debug, Clone, Copy)]
 pub struct CaptureAndExtraTurn();
@@ -8,7 +8,7 @@ impl<const S: usize> Algorithm<S> for CaptureAndExtraTurn {
     fn min_games(&self) -> usize { 1 }
     fn name(&self) -> String { "Capture & Extra Turn".to_string() }
     fn play_move(&mut self, board: &MancalaBoard<S>, side: Side) -> usize {
-        let mut captures: ArrayVec<(usize, u32), S> = ArrayVec::new();
+        let mut captures: ArrayVec<(usize, MUInt), S> = ArrayVec::new();
         let mut extra_turns: ArrayVec<usize, S> = ArrayVec::new();
 
         for i in 0..S {

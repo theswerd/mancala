@@ -174,7 +174,7 @@ fn main() {
     plot::draw_colors(results, algorithms.len());
 }
 
-const INITIAL_BOARDS: &[[u32; 6]] = &[
+const INITIAL_BOARDS: &[[MUInt; 6]] = &[
     [1; 6],
     [2; 6],
     [3; 6],
