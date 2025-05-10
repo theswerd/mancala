@@ -3,7 +3,7 @@ mod plot;
 use std::time::{Duration, Instant};
 
 use bank_bird::Algorithm;
-use mancala_board::{MancalaBoard, Side, MoveResult, Winner};
+use mancala_board::{MUInt, MancalaBoard, MoveResult, Side, Winner};
 
 #[derive(Default, Clone, Copy, derive_more::Add, derive_more::Sum)]
 struct GamesResults {
@@ -23,10 +23,10 @@ pub struct AlgorithmBattle<const S: usize> {
 }
 
 macro_rules! algs {
-    ($($m:ident::$al:ident $b:tt,)*) => {
+    ($($m:ident::$al:ident $b:tt $($c:ident $d:tt)?,)*) => {
         vec![
             $(
-                Box::new(bank_bird::$m::$al $b),
+                Box::new(bank_bird::$m::$al $b $($c $d)?),
             )*
         ]
     };
@@ -40,7 +40,7 @@ fn main() {
         deterministic::Smallest(true),
         deterministic::Biggest(false),
         deterministic::Biggest(true),
-        deterministic::Pi(0),
+        deterministic::Pi::default(),
         mix::CaptureAndExtraTurn(),
         // random::Random(),
 
